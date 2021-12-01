@@ -12,7 +12,6 @@ public class Day00 : BaseDay {
     }
    
     private long MultiplyNumbers(IEnumerable<int> numbers) {
-        // return numbers multiplied
         return numbers.Aggregate((current, number) => current * number);
     }
 
