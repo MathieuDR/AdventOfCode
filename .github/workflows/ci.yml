@@ -8,20 +8,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 6.0.x
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 6.0.x
 
-    - name: Build
-      run: dotnet build -c Release
+      - name: Build
+        run: dotnet build -c Release
 
-    - name: Solve 2020
-      run: dotnet run -c Release --no-build -- all
-      working-directory: ./Year_2020
+      - name: Solve 2020
+        run: dotnet run -c Release --no-build -- all
+        working-directory: ./Year_2020
 
-    - name: Solve 2021
-      run: dotnet run -c Release --no-build -- all
-      working-directory: ./Year_2021
+      - name: Solve 2021
+        run: dotnet run -c Release --no-build -- all
+        working-directory: ./Year_2021

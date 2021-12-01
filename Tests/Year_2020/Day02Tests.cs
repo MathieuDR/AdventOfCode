@@ -1,6 +1,6 @@
 ﻿using AdventOfCode.Year_2020;
 
-namespace Tests.Year_2020; 
+namespace Tests.Year_2020;
 
 public class Day02Tests {
     [Theory]

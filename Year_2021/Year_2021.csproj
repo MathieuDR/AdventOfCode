@@ -9,8 +9,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AoCHelper" Version="1.0.2" />
-        <PackageReference Include="MathieuDR.Common" Version="1.1.0" />
+        <PackageReference Include="AoCHelper" Version="1.0.2"/>
+        <PackageReference Include="MathieuDR.Common" Version="1.1.0"/>
     </ItemGroup>
 
     <PropertyGroup>
@@ -22,12 +22,12 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Inputs\01.txt">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Common\Common.csproj" />
+        <ProjectReference Include="..\Common\Common.csproj"/>
     </ItemGroup>
 
 </Project>

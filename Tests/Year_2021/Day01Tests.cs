@@ -14,7 +14,7 @@ public class Day01Tests {
 
         ups.Should().Be(7);
     }
-    
+
     [Fact]
     public void CanSolveSecondExample() {
         var input = "199\n200\n208\n210\n200\n207\n240\n269\n260\n263";

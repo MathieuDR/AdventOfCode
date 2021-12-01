@@ -6,7 +6,7 @@ namespace AdventOfCode.Year_2020;
 ///     Day 2 from year 2020
 /// </summary>
 public class Day02 : BaseDay {
-    private PasswordRecord[] passwords;
+    private readonly PasswordRecord[] passwords;
 
     public Day02() {
         passwords = File.ReadAllLines(InputFilePath).Select(x => new PasswordRecord(x)).ToArray();
@@ -24,7 +24,11 @@ public class Day02 : BaseDay {
 
     public class PasswordRecord {
         private static readonly Regex regex = new(@"^(\d+)-(\d+) (\w): (\w+)$", RegexOptions.Compiled);
-        private static Dictionary<char, Regex> _regexes = new();
+        private static readonly Dictionary<char, Regex> _regexes = new();
+
+        private bool? _isValidForSledRental;
+
+        private bool? _isValidForToboggan;
 
         public PasswordRecord(string record) {
             var regexResult = regex.Matches(record);
@@ -32,15 +36,12 @@ public class Day02 : BaseDay {
             Minimum = int.Parse(regexResult[0].Groups[1].Value);
             Maximum = int.Parse(regexResult[0].Groups[2].Value);
             RequiredLetter = regexResult[0].Groups[3].Value[0];
-            
+
             ValidateSledRentalPassword();
             ValidateTobogganPassword();
         }
 
-        private bool? _isValidForSledRental;
         public bool IsValidForSledRental => _isValidForSledRental ??= ValidateSledRentalPassword();
-        
-        private bool? _isValidForToboggan;
         public bool IsValidForToboggan => _isValidForToboggan ??= ValidateTobogganPassword();
         public string Password { get; set; }
         public char RequiredLetter { get; set; }
@@ -50,39 +51,40 @@ public class Day02 : BaseDay {
         private bool ValidateSledRentalPassword() {
             var regex = GetRegexFromDictionary(RequiredLetter);
             var amountOfMatches = Password.Count(x => regex.IsMatch(x.ToString()));
-            
-            if(amountOfMatches >= Minimum && amountOfMatches <= Maximum) {
+
+            if (amountOfMatches >= Minimum && amountOfMatches <= Maximum) {
                 return true;
             }
 
             return false;
         }
-        
+
         private bool ValidateTobogganPassword() {
             char? firstLetter = null, lastLetter = null;
-            
-            if (Password.Length + 1 >= Minimum ) {
+
+            if (Password.Length + 1 >= Minimum) {
                 firstLetter = Password[Minimum - 1];
             }
-            
-            if (Password.Length + 1 >= Maximum ) {
+
+            if (Password.Length + 1 >= Maximum) {
                 lastLetter = Password[Maximum - 1];
             }
-            
-            if(!firstLetter.HasValue) {
+
+            if (!firstLetter.HasValue) {
                 return false;
             }
-            
-            if((firstLetter.Value == RequiredLetter && (lastLetter.HasValue && lastLetter.Value != RequiredLetter || !lastLetter.HasValue)) || (lastLetter == RequiredLetter && firstLetter != RequiredLetter)) {
+
+            if (firstLetter.Value == RequiredLetter && (lastLetter.HasValue && lastLetter.Value != RequiredLetter || !lastLetter.HasValue) ||
+                lastLetter == RequiredLetter && firstLetter != RequiredLetter) {
                 return true;
             }
-            
+
             return false;
         }
 
         private Regex GetRegexFromDictionary(char requiredLetter) {
-            if(!_regexes.TryGetValue(requiredLetter, out Regex result)) {
-                result = new(requiredLetter.ToString(), RegexOptions.Compiled);
+            if (!_regexes.TryGetValue(requiredLetter, out var result)) {
+                result = new Regex(requiredLetter.ToString(), RegexOptions.Compiled);
                 _regexes.Add(requiredLetter, result);
             }
 
