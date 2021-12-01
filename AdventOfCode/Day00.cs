@@ -21,12 +21,12 @@ public class Day00 : BaseDay {
     }
 
     public override ValueTask<string> Solve_1() {
-        var numberPairs = _numbers.GetNumbersThatSumTo(2,2020);
-        return new ValueTask<string>(GetMax(numberPairs, MultiplyNumbers).ToString());
+        var numberPairs = _numbers.GetNumbersThatSumTo(2,2020).First().ToArray();
+        return new ValueTask<string>($"The numbers are {numberPairs.First()} and {numberPairs.Last()}, resulting in the sum of {MultiplyNumbers(numberPairs)}");
     }
 
     public override ValueTask<string> Solve_2() {
-        var numberPairs = _numbers.GetNumbersThatSumTo(3,2020);
-        return new ValueTask<string>(GetMax(numberPairs, MultiplyNumbers).ToString());
+        var numberPairs = _numbers.GetNumbersThatSumTo(3,2020).First().ToArray();
+        return new ValueTask<string>($"The numbers are {numberPairs.First()}, {numberPairs[1]} and {numberPairs.Last()}, resulting in the sum of {MultiplyNumbers(numberPairs)}");
     }
 }
