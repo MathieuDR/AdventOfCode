@@ -2,7 +2,7 @@
 namespace AdventOfCode;
 
 /// <summary>
-/// Day 1 from year 2020
+/// Day 1 from year 2021
 /// </summary>
 public class Day01 : BaseDay {
     private int[] _numbers;
