@@ -20,11 +20,8 @@ public class Day01 : BaseDay {
     public IEnumerable<Direction> GetDirectionsWithSlidingView(int amountToCompare) {
         var result = new List<Direction>();
         for (int i = 1; i < _numbers.Length; i++) {
-            var currentNumbers = _numbers.Skip(i).Take(amountToCompare);
-            var previousNumbers = _numbers.Skip(i - 1).Take(amountToCompare);
-            
-            var current = currentNumbers.Sum();
-            var previous = previousNumbers.Sum();
+            var current = _numbers.Skip(i).Take(amountToCompare).Sum();
+            var previous = _numbers.Skip(i - 1).Take(amountToCompare).Sum();
             
             if (current > previous) {
                 result.Add(Direction.Up);
