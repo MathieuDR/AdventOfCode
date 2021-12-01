@@ -1,4 +1,4 @@
-﻿namespace AdventOfCode.Helpers; 
+﻿namespace AdventOfCode.Common.Helpers; 
 
 public static class NumberExtensions {
     public static IEnumerable<IEnumerable<int>> GetNumbersThatSumTo(this int[] numbers, int amountOfNumbers, int amountToSumTo) {

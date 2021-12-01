@@ -1,13 +1,13 @@
 ﻿
-namespace AdventOfCode;
+namespace AdventOfCode.Year_2020;
 
 /// <summary>
 /// Day 1 from year 2020
 /// </summary>
-public class Day00 : BaseDay {
+public class Day01 : BaseDay {
     private int[] _numbers;
 
-    public Day00() {
+    public Day01() {
         _numbers = File.ReadAllLines(InputFilePath).Select(int.Parse).ToArray();
     }
    
