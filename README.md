@@ -1,7 +1,14 @@
-# AdventOfCode 2021
+# AdventOfCode
 
-Hello, welcome to my [Advent of Code 2021](https://adventofcode.com/2021) solutions. It will be the first time I'm partaking. 
-What other language to use then C# and dotNet 6?
+Hey, this is my repo where I hold all my solutions for [Advent of Code's](https://adventofcode.com/).
+
+## 2021
+
+[Advent of Code 2021](https://adventofcode.com/2021) is the first year of the Advent of Code series that I participated while it was running.
+
+## 2015 - 2020
+
+These are series I'm planning to do during the current year, as I Didn't participate in them.
 
 ## Template
 
