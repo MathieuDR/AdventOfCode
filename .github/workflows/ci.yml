@@ -18,6 +18,10 @@ jobs:
     - name: Build
       run: dotnet build -c Release
 
-    - name: Solve all
+    - name: Solve 2020
       run: dotnet run -c Release --no-build -- all
-      working-directory: ./AdventOfCode
+      working-directory: ./Year_2020
+
+    - name: Solve 2021
+      run: dotnet run -c Release --no-build -- all
+      working-directory: ./Year_2021
