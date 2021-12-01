@@ -10,8 +10,12 @@ public class Day01 : BaseDay {
     public Day01() {
         _numbers = File.ReadAllLines(InputFilePath).Select(int.Parse).ToArray();
     }
+
+    public Day01(string input) {
+        _numbers = input.Split("\n").Select(int.Parse).ToArray();
+    }
     
-    private IEnumerable<Direction> GetDirectionsWithSlidingView(int amountToCompare) {
+    public IEnumerable<Direction> GetDirectionsWithSlidingView(int amountToCompare) {
         var result = new List<Direction>();
         for (int i = 1; i < _numbers.Length; i++) {
             var currentNumbers = _numbers.Skip(i).Take(amountToCompare);
