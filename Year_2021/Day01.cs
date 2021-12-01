@@ -1,4 +1,6 @@
 ﻿
+using System.Text.RegularExpressions;
+
 namespace AdventOfCode.Year_2021;
 
 /// <summary>
@@ -14,7 +16,7 @@ public class Day01 : BaseDay {
     public Day01(string input) {
         _numbers = input.Split("\n").Select(int.Parse).ToArray();
     }
-    
+
     public IEnumerable<Direction> GetDirectionsWithSlidingView(int amountToCompare) {
         var result = new List<Direction>();
         for (int i = 1; i < _numbers.Length; i++) {
@@ -30,9 +32,7 @@ public class Day01 : BaseDay {
                 result.Add(Direction.Down);
             } else if(current == previous){
                 result.Add(Direction.Stagnant);
-            } else {
-                result.Add(Direction.None);
-            }
+            } 
         }
 
         return result;
@@ -53,7 +53,6 @@ public class Day01 : BaseDay {
     public enum Direction {
         Up,
         Down,
-        Stagnant,
-        None
+        Stagnant
     }
 }
