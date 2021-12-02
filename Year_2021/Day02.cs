@@ -1,12 +1,9 @@
-﻿using System.Text.RegularExpressions;
-
-namespace AdventOfCode.Year_2021;
+﻿namespace AdventOfCode.Year_2021;
 
 /// <summary>
 ///     Day 2 from year 2021
 /// </summary>
 public class Day02 : BaseDay {
-    private static readonly Regex Regex = new("(\\w+) (\\d+)", RegexOptions.Compiled);
     private readonly string[] _commands;
 
     public Day02() {
@@ -76,10 +73,8 @@ public class Day02 : BaseDay {
     /// <param name="command"></param>
     /// <returns>direction & amount</returns>
     private static (string direction, int amount) ParseCommand(string command) {
-        var matches = Regex.Matches(command);
-        var dir = matches[0].Groups[1].Value;
-        var amount = int.Parse(matches[0].Groups[2].Value);
-        return (dir, amount);
+        var split = command.Split(" ");
+        return (split[0], int.Parse(split[1]));
     }
 
     public override ValueTask<string> Solve_1() {
