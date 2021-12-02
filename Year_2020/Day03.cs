@@ -16,12 +16,15 @@ public class Day03 : BaseDay {
 
     private int CalculateCollisions(int rightStep, int downStep) {
         var collisions = 0;
+        var amountRight = 0;
         for (var i = 0; i < map.Length; i += downStep) {
-            var index = rightStep * i % map[i].Length;
+            var index = rightStep * amountRight % map[i].Length;
             var mapObject = map[i][index];
             if (mapObject == '#') {
                 collisions++;
             }
+
+            amountRight++;
         }
 
         return collisions;
@@ -34,7 +37,14 @@ public class Day03 : BaseDay {
     }
 
     public override ValueTask<string> Solve_2() {
+        var collisions = new List<long>();
+        collisions.Add(CalculateCollisions(1, 1));
+        collisions.Add(CalculateCollisions(3, 1));
+        collisions.Add(CalculateCollisions(5, 1));
+        collisions.Add(CalculateCollisions(7, 1));
+        collisions.Add(CalculateCollisions(1, 2));
+
         return new ValueTask<string>(
-            "");
+            $"We hit {collisions.Aggregate((a, b) => a * b)} trees");
     }
 }
