@@ -39,13 +39,40 @@ public class Day02 : BaseDay {
         return (depth, horizontal);
     }
 
+    public static (int depth, int horizontal) CalculatePositionWithAim(string[] commands) {
+        int depth = 0, horizontal = 0, aim = 0;
+        foreach (var command in commands) {
+            var matches = Regex.Matches(command);
+            var dir = matches[0].Groups[1].Value;
+            var amount = int.Parse(matches[0].Groups[2].Value);
+
+            switch (dir) {
+                case "forward":
+                    horizontal += amount;
+                    depth += aim * amount;
+                    break;
+                case "back":
+                    horizontal -= amount;
+                    break;
+                case "down":
+                    aim += amount;
+                    break;
+                case "up":
+                    aim -= amount;
+                    break;
+            }
+        }
+
+        return (depth, horizontal);
+    }
+
     public override ValueTask<string> Solve_1() {
         var (depth, horizontal) = CalculatePosition(_commands);
-
         return new ValueTask<string>($"The multiplication is {depth * horizontal}");
     }
 
     public override ValueTask<string> Solve_2() {
-        return new ValueTask<string>("");
+        var (depth, horizontal) = CalculatePositionWithAim(_commands);
+        return new ValueTask<string>($"The multiplication is {depth * horizontal}");
     }
 }
