@@ -14,7 +14,25 @@ public class Day03 : BaseDay {
 
     public static bool MostCommonBit(bool[] bools) {
         var trues = bools.Count(x => x);
-        return trues >= bools.Length / 2;
+        return trues >= (int)Math.Ceiling(bools.Length / 2.0);
+    }
+
+    public static bool[] FilterByCommonBit(bool[][] bits, int pos = 0, bool mostCommon = true) {
+        var transposed = bits.Transpose().Select(x => x.ToArray()).ToArray();
+        var bitToFilterWith = MostCommonBit(transposed[pos]);
+
+        if (!mostCommon) {
+            bitToFilterWith = !bitToFilterWith;
+        }
+
+        var filtered = bits.Where(x => x[pos] == bitToFilterWith).ToArray();
+
+        pos++;
+        if (pos > transposed.Length || filtered.Length == 1) {
+            return filtered.First();
+        }
+
+        return FilterByCommonBit(filtered, pos, mostCommon);
     }
 
 
@@ -34,11 +52,15 @@ public class Day03 : BaseDay {
         var result = (long)gammaResult * epsilonResult;
 
         // 2521700
-        return new ValueTask<string>($"Result is `{result}`. Gamma: {gammaResult}, epsilon: {epsilonResult}");
+        return new ValueTask<string>($"Result is `{result}`.\r\n Gamma: {gammaResult}, epsilon: {epsilonResult}");
     }
 
     public override ValueTask<string> Solve_2() {
-        var result = 0;
-        return new ValueTask<string>($"Result is `{result}`");
+        var oxygen = FilterByCommonBit(_data).Reverse().ToInt();
+        var scrubbing = FilterByCommonBit(_data, mostCommon: false).Reverse().ToInt();
+        var result = oxygen * scrubbing;
+        return new ValueTask<string>($"Result is `{result}`\r\n O2: {oxygen}, O2 Scrubbing: {scrubbing}");
+
+        // 11510100
     }
 }
