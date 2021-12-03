@@ -1,4 +1,6 @@
-﻿namespace AdventOfCode.Common.Helpers;
+﻿using System.Collections;
+
+namespace AdventOfCode.Common.Helpers;
 
 public static class NumberExtensions {
     public static IEnumerable<IEnumerable<int>> GetNumbersThatSumTo(this int[] numbers, int amountOfNumbers, int amountToSumTo) {
@@ -23,5 +25,26 @@ public static class NumberExtensions {
             // Add current to set
             set.Add(new HashSet<int> { current });
         }
+    }
+
+    public static int ToInt(this IEnumerable<bool> bits) {
+        var bitArr = new BitArray(bits.ToArray());
+        var bytes = bitArr.BitArrayToByteArray(4);
+        return BitConverter.ToInt32(bytes);
+    }
+
+    public static byte[] BitArrayToByteArray(this BitArray bits, int? size = null) {
+        var minSize = (bits.Length - 1) / 8 + 1;
+        if (!size.HasValue) {
+            size = minSize;
+        }
+
+        if (minSize > size) {
+            throw new ArgumentException("There are too mani bits for this size");
+        }
+
+        var result = new byte[size.Value];
+        bits.CopyTo(result, 0);
+        return result;
     }
 }

@@ -40,7 +40,7 @@ public class Day01 : BaseDay {
 
     public override ValueTask<string> Solve_1() {
         var directions = GetDirectionsWithSlidingView(1);
-        var result = directions.Sum(d => d == Direction.Up ? 1 : 0);
+        var result = directions.Sum(d => d == Direction.Down ? 1 : 0);
         return new ValueTask<string>($"There are {result} steps up with a sliding view of 1");
     }
 
