@@ -35,4 +35,13 @@ public static class CollectionExtensions {
             b = (byte)(b >> 1);
         }
     }
+
+    public static IEnumerable<T> ToType<T, TT>(this IEnumerable<TT> strings, Func<TT, T> act) {
+        var list = new List<T>();
+        foreach (var s in strings) {
+            list.Add(act(s));
+        }
+
+        return list;
+    }
 }
