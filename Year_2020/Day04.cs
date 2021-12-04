@@ -6,7 +6,7 @@ public class Day04 : BaseDay {
     private readonly Passport[] _passports;
 
     public Day04() {
-        _passports = File.ReadAllText(InputFilePath).Split("\r\n\r\n").Select(x => new Passport(x)).ToArray();
+        _passports = File.ReadAllText(InputFilePath).Split(Environment.NewLine + Environment.NewLine).Select(x => new Passport(x)).ToArray();
     }
 
     public override ValueTask<string> Solve_1() {

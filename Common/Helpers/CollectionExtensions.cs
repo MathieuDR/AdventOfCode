@@ -6,24 +6,20 @@ public static class CollectionExtensions {
         return bits.Transpose();
     }
 
-    public static IEnumerable<IEnumerable<bool>> Transpose(this IEnumerable<IEnumerable<bool>> bits) {
-        List<List<bool>> transposed = new();
-        var bitsArr = bits.Select(x => x.ToArray()).ToArray();
+    public static IEnumerable<IEnumerable<T>> Transpose<T>(this IEnumerable<IEnumerable<T>> matrix) {
+        List<List<T>> transposed = new();
+        var matrixArr = matrix.Select(x => x.ToArray()).ToArray();
 
-        var maxCols = bitsArr.Select(x => x.Length).Max();
+        var maxCols = matrixArr.Select(x => x.Length).Max();
 
 
         for (var col = 0; col < maxCols; col++) {
-            var bools = new List<bool>();
-            for (var row = bitsArr.Length - 1; row >= 0; row--) {
-                if (bitsArr[row].Length <= col) {
-                    bools.Add(false);
-                } else {
-                    bools.Add(bitsArr[row][col]);
-                }
+            var newRow = new List<T>();
+            for (var row = matrixArr.Length - 1; row >= 0; row--) {
+                newRow.Add((matrixArr[row].Length <= col ? default : matrixArr[row][col]) ?? default);
             }
 
-            transposed.Add(bools);
+            transposed.Add(newRow);
         }
 
         return transposed;
