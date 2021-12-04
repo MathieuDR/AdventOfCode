@@ -22,7 +22,6 @@ public class Day04 : BaseDay {
 
     public event Func<int, BingoBoard> DrawNumber;
 
-
     public override ValueTask<string> Solve_1() {
         var result = 0;
         for (var index = drawIndex; index < _draws.Length; index++) {
@@ -39,12 +38,16 @@ public class Day04 : BaseDay {
 
     public override ValueTask<string> Solve_2() {
         BingoBoard last = null;
+
+        // Continuing our number draw
         for (var index = drawIndex; index < _draws.Length; index++) {
             var draw = _draws[index];
             var winningBoard = OnDrawNumber(draw).LastOrDefault();
             if (winningBoard is not null) {
+                // This round has a winner, lets update
                 last = winningBoard;
 
+                // There are no more boards participating
                 if (DrawNumber is null) {
                     break;
                 }
@@ -59,6 +62,7 @@ public class Day04 : BaseDay {
             return null;
         }
 
+        // Adds all the boards in a list
         var list = new List<BingoBoard>();
         foreach (var @delegate in DrawNumber.GetInvocationList()) {
             var result = @delegate.DynamicInvoke(arg);
@@ -77,26 +81,25 @@ public class Day04 : BaseDay {
         private int _lastNumber;
 
         private bool _won;
-
-        // private int? _index;
-        // private bool? _isRow;
         private int? _score;
 
         public BingoBoard(string input) {
-            _board = input.Split(Environment.NewLine).Select(x => x.Split(" ", StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToArray())
+            _board = input.Split(Environment.NewLine)
+                .Select(x => x.Split(" ", StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToArray())
                 .ToArray();
+            
             _drawn = _board.Select(x => new bool[x.Length]).ToArray();
         }
 
         public void Subscribe(Day04 day) {
-            day.DrawNumber += DayOnDrawNumber;
+            day.DrawNumber += OnNewNumber;
         }
 
         public void UnSubscribe(Day04 day) {
-            day.DrawNumber -= DayOnDrawNumber;
+            day.DrawNumber -= OnNewNumber;
         }
 
-        private BingoBoard DayOnDrawNumber(int number) {
+        private BingoBoard OnNewNumber(int number) {
             _lastNumber = number;
             for (var i = 0; i < _board.Length; i++) {
                 var row = _board[i];
@@ -106,6 +109,9 @@ public class Day04 : BaseDay {
                         if (IsWon(i, j)) {
                             return this;
                         }
+
+                        // We did not win, but we can stop the loog
+                        break;
                     }
                 }
             }
@@ -129,6 +135,7 @@ public class Day04 : BaseDay {
                     }
 
                     if (!rowWon && !colWon) {
+                        // Are we still in the running?
                         break;
                     }
                 }
@@ -157,97 +164,5 @@ public class Day04 : BaseDay {
 
             return score * _lastNumber;
         }
-
-        // private BingoBoard CalculateScores(int rowIndex, int colIndex) {
-        //     int? rowScore = 0;
-        //     int? colScore = 0;
-        //
-        //     for (var i = 0; i < _board.Length; i++) {
-        //         var row = _board[i];
-        //         for (var j = 0; j < row.Length; j++) {
-        //             if (i == rowIndex && rowScore.HasValue) {
-        //                 if (_drawn[i][j]) {
-        //                     rowScore += _board[i][j];
-        //                 } else {
-        //                     rowScore = null;
-        //                 }
-        //             }
-        //
-        //             if (j == colIndex && colScore.HasValue) {
-        //                 if (_drawn[i][j]) {
-        //                     colScore += _board[i][j];
-        //                 } else {
-        //                     colScore = null;
-        //                 }
-        //             }
-        //         }
-        //     }
-        //
-        //     if (SetState(rowIndex, rowScore , colScore, _board[rowIndex][colIndex])) {
-        //         return this;
-        //     }
-        //
-        //     return null;
-        // }
-
-        // /// <summary>
-        // /// Set the current winning state
-        // /// </summary>
-        // /// <param name="rowIndex"></param>
-        // /// <param name="rowScore"></param>
-        // /// <param name="colScore"></param>
-        // /// <returns>Returns true when the board won</returns>
-        // private bool SetState(int rowIndex, int? rowScore, int? colScore, int multiplier) {
-        //     if (rowScore.HasValue && colScore.HasValue) {
-        //         if (rowScore > colScore) {
-        //             _isRow = true;
-        //             _index = rowIndex;
-        //             _score = rowScore;
-        //         } else {
-        //             _isRow = false;
-        //             _index = colScore;
-        //             _score = colScore;
-        //         }
-        //
-        //         _score *= multiplier;
-        //         return true;
-        //     }
-        //
-        //     if (rowScore.HasValue) {
-        //         _isRow = true;
-        //         _index = rowIndex;
-        //         _score = rowScore * multiplier;
-        //         return true;
-        //     }
-        //
-        //     if (colScore.HasValue) {
-        //         _isRow = false;
-        //         _index = colScore;
-        //         _score = colScore * multiplier;
-        //         return true;
-        //     }
-        //
-        //     return false;
-        // }
-        //
-        // public int GetScore() {
-        //     if (_score.HasValue) {
-        //         return _score.Value;
-        //     }
-        //
-        //     throw new InvalidOperationException("We did not win yet");
-        // }
-        //
-        // public int[] GetWinningRow() {
-        //     if (!_isRow.HasValue || !_index.HasValue) {
-        //         return null;
-        //     }
-        //
-        //     if (_isRow.Value) {
-        //         return _board[_index.Value];
-        //     }
-        //
-        //     return _board.Transpose().ToArray()[_index.Value].ToArray();
-        // }
     }
 }
