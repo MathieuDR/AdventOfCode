@@ -19,28 +19,45 @@ public class Day05 : BaseDay {
     }
 
     public override ValueTask<string> Solve_2() {
-        return new ValueTask<string>($"Result: `{-1}`");
+        _seaFloor.InitFloor(true);
+        return new ValueTask<string>($"Result: `{_seaFloor.HowManyNOverlaps(2)}`");
     }
 
     public class SeaFloor {
         private readonly HydroThermalVent[] _hydroThermalVents;
         private int[][] _floor;
-        private (int xBound, int yBound) _floorBound;
+        private (int xBound, int yBound)? _floorBound;
 
-        public SeaFloor(HydroThermalVent[] hydroThermalVents) {
+        public SeaFloor(HydroThermalVent[] hydroThermalVents, bool useDiagonals = false) {
             _hydroThermalVents = hydroThermalVents;
-            InitFloor();
+            InitFloor(useDiagonals);
         }
 
-        private void InitFloor() {
+        public void InitFloor(bool useDiagonals) {
             CreateSeaFloorArray();
-            FillSeaFloor();
+            FillSeaFloor(useDiagonals);
         }
 
-        private void FillSeaFloor() {
+        private void FillSeaFloor(bool useDiagonals) {
             foreach (var vent in _hydroThermalVents) {
                 if (vent.IsDiagonal) {
-                    continue;
+                    if (!useDiagonals) {
+                        // skip
+                        continue;
+                    }
+
+                    var points = vent.EndCoordinate.x - vent.StartCoordinate.x;
+                    var xBase = vent.StartCoordinate.x;
+                    var isDown = vent.EndCoordinate.y > vent.StartCoordinate.y;
+                    var yEnd = Math.Max(vent.StartCoordinate.y, vent.EndCoordinate.y);
+                    var yStart = Math.Min(vent.StartCoordinate.y, vent.EndCoordinate.y);
+                    for (var i = 0; i <= points; i++) {
+                        if (isDown) {
+                            _floor[yStart + i][xBase + i] += 1;
+                        } else {
+                            _floor[yEnd - i][xBase + i] += 1;
+                        }
+                    }
                 }
 
                 if (vent.IsHorizontal) {
@@ -56,11 +73,11 @@ public class Day05 : BaseDay {
         }
 
         private void CreateSeaFloorArray() {
-            _floorBound = GetMapBounds();
-            _floor = new int[_floorBound.yBound][];
+            _floorBound ??= GetMapBounds();
+            _floor = new int[_floorBound.Value.yBound][];
             for (var i = 0; i < _floor.Length; i++) {
                 //_floor[i] = GetVentsOnRow(i);
-                _floor[i] = new int[_floorBound.xBound];
+                _floor[i] = new int[_floorBound.Value.xBound];
             }
         }
 
@@ -104,7 +121,7 @@ public class Day05 : BaseDay {
             StartCoordinate = (splits[0][0], splits[0][1]);
             EndCoordinate = (splits[1][0], splits[1][1]);
 
-            if (IsHorizontal && StartCoordinate.x > EndCoordinate.x || IsVertical && StartCoordinate.y > EndCoordinate.y) {
+            if ((IsHorizontal || IsDiagonal) && StartCoordinate.x > EndCoordinate.x || IsVertical && StartCoordinate.y > EndCoordinate.y) {
                 (EndCoordinate, StartCoordinate) = (StartCoordinate, EndCoordinate);
             }
         }
