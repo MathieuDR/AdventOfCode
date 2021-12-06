@@ -4,13 +4,13 @@
 ///     Day 06 from year 2021
 /// </summary>
 public class Day06 : BaseDay {
-    private readonly List<(int ageGroup, long amount)> groups = new();
+    private readonly long[] groups = new long[0];
 
     public Day06() {
         var input = File.ReadAllText(InputFilePath).Split(",").Select(int.Parse).ToArray();
 
         for (var i = 0; i < 10; i++) {
-            groups.Add((i, input.Count(x => x == i)));
+            groups[i] = input.Count(x => x == i);
         }
     }
 
@@ -26,19 +26,19 @@ public class Day06 : BaseDay {
 
     private long PassDays(int days) {
         for (var i = 0; i < days; i++) {
-            for (var j = 0; j < groups.Count; j++) {
-                if (groups[j].ageGroup == 0) {
+            for (var j = 0; j < groups.Length; j++) {
+                if (j == 0) {
                     // handle offspring
-                    groups[9] = (9, groups[j].amount);
-                    groups[7] = (7, groups[7].amount + groups[j].amount);
+                    groups[9] = groups[j];
+                    groups[7] += groups[j];
                 } else {
                     // switch groups
-                    groups[j - 1] = (groups[j].ageGroup - 1, groups[j].amount);
-                    groups[j] = (j, 0);
+                    groups[j - 1] = groups[j];
+                    groups[j] = 0;
                 }
             }
         }
 
-        return groups.Sum(x => x.amount);
+        return groups.Sum();
     }
 }
