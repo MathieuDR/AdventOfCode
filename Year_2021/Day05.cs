@@ -1,7 +1,7 @@
 ﻿namespace AdventOfCode.Year_2021;
 
 /// <summary>
-///     Day 23 from year 2021
+///     Day 05 from year 2021
 /// </summary>
 public class Day05 : BaseDay {
     private readonly HydroThermalVent[] _vents;

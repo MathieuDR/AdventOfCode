@@ -1,7 +1,7 @@
 ﻿namespace AdventOfCode.Year_2021;
 
 /// <summary>
-///     Day 2 from year 2021
+///     Day 02 from year 2021
 /// </summary>
 public class Day02 : BaseDay {
     private readonly string[] _commands;
