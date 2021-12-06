@@ -4,12 +4,13 @@
 ///     Day 06 from year 2021
 /// </summary>
 public class Day06 : BaseDay {
-    private readonly long[] groups = new long[10];
+    private readonly long[] groups = new long[9];
+    private const int _reproduceTime = 6;
 
     public Day06() {
         var input = File.ReadAllText(InputFilePath).Split(",").Select(int.Parse).ToArray();
 
-        for (var i = 0; i < 10; i++) {
+        for (var i = 0; i < groups.Length; i++) {
             groups[i] = input.Count(x => x == i);
         }
     }
@@ -26,17 +27,10 @@ public class Day06 : BaseDay {
 
     private long PassDays(int days) {
         for (var i = 0; i < days; i++) {
-            for (var j = 0; j < groups.Length; j++) {
-                if (j == 0) {
-                    // handle offspring
-                    groups[9] = groups[j];
-                    groups[7] += groups[j];
-                } else {
-                    // switch groups
-                    groups[j - 1] = groups[j];
-                    groups[j] = 0;
-                }
-            }
+            var parents = groups[0];
+            Array.Copy(groups, 1, groups, 0, groups.Length - 1);
+            groups[^1] = parents;
+            groups[_reproduceTime] += parents;
         }
 
         return groups.Sum();
