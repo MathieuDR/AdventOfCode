@@ -4,7 +4,7 @@
 ///     Day 06 from year 2021
 /// </summary>
 public class Day06 : BaseDay {
-    private readonly long[] groups = new long[0];
+    private readonly long[] groups = new long[10];
 
     public Day06() {
         var input = File.ReadAllText(InputFilePath).Split(",").Select(int.Parse).ToArray();
