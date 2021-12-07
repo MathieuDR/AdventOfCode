@@ -50,16 +50,25 @@ public class Day07 : BaseDay {
     }
 
     public override ValueTask<string> Solve_2() {
-        var distincts = crabsPos.Distinct().ToArray();
-        var min = distincts.Min();
-        var max = distincts.Max();
-        var result = int.MaxValue;
+        // Solve from average, even though it doesn't necessary mean it's correct
+        var average = CalculateAverage(crabsPos);
+        var lowest = CalculateFuel2(crabsPos, average);
+        int result;
+        var i = 1;
+        do {
+            // With some fancy algorithm we can do a binary search somehow
+            result = lowest;
+            lowest = CalculateFuel2(crabsPos, average + i);
 
-        for (var i = min; i < max; i++) {
-            var temp1 = CalculateFuel2(crabsPos, i);
-            result = Math.Min(result, temp1);
-        }
+            var t2 = CalculateFuel2(crabsPos, average - i);
+            if (t2 < lowest) {
+                lowest = t2;
+            }
 
+            i++;
+        } while (result >= lowest);
+        
         return new ValueTask<string>($"Result: `{result}`");
     }
+
 }
