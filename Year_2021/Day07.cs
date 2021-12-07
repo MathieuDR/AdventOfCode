@@ -21,8 +21,25 @@ public class Day07 : BaseDay {
         return (int)Math.Round(median);
     }
 
+    public static int CalculateAverage(int[] positions) {
+        var average = positions.Average();
+        return (int)Math.Round(average);
+    }
+
     public static int CalculateFuel(int[] positions, int position) {
         return positions.Select(x => Math.Abs(x - position)).Sum();
+    }
+
+    public static int CalculateFuel2(int[] positions, int position) {
+        return positions.Select(x => {
+            var steps = Math.Abs(x - position);
+            var result = 0;
+            for (var i = steps; i > 0; i--) {
+                result += i;
+            }
+
+            return result;
+        }).Sum();
     }
 
     public override ValueTask<string> Solve_1() {
@@ -33,7 +50,16 @@ public class Day07 : BaseDay {
     }
 
     public override ValueTask<string> Solve_2() {
-        var result = 0;
+        var distincts = crabsPos.Distinct().ToArray();
+        var min = distincts.Min();
+        var max = distincts.Max();
+        var result = int.MaxValue;
+
+        for (var i = min; i < max; i++) {
+            var temp1 = CalculateFuel2(crabsPos, i);
+            result = Math.Min(result, temp1);
+        }
+
         return new ValueTask<string>($"Result: `{result}`");
     }
 }

@@ -3,7 +3,7 @@ using AdventOfCode.Year_2021;
 
 namespace Tests.Year_2021;
 
-public class Day06Tests {
+public class Day07Tests {
     [Theory]
     [InlineData("16,1,2,0,4,2,7,1,2,14", 2)]
     [InlineData("2,2,0,4,2,7,1,2,14", 2)]
@@ -26,6 +26,17 @@ public class Day06Tests {
         // 0 1 1 2 2 4 7 14 16
         var input = "16,1,2,0,4,2,7,1,2,14".Split(",").Select(int.Parse).ToArray();
         var fuel = Day07.CalculateFuel(input, position);
+
+        fuel.Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData(2, 206)]
+    [InlineData(5, 168)]
+    public void CalculateFuel2ShouldBeCorrect(int position, int expected) {
+        // 0 1 1 2 2 4 7 14 16
+        var input = "16,1,2,0,4,2,7,1,2,14".Split(",").Select(int.Parse).ToArray();
+        var fuel = Day07.CalculateFuel2(input, position);
 
         fuel.Should().Be(expected);
     }
