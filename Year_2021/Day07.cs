@@ -50,25 +50,33 @@ public class Day07 : BaseDay {
     }
 
     public override ValueTask<string> Solve_2() {
-        // Solve from average, even though it doesn't necessary mean it's correct
         var average = CalculateAverage(crabsPos);
-        var lowest = CalculateFuel2(crabsPos, average);
-        int result;
-        var i = 1;
-        do {
-            // With some fancy algorithm we can do a binary search somehow
-            result = lowest;
-            lowest = CalculateFuel2(crabsPos, average + i);
-
-            var t2 = CalculateFuel2(crabsPos, average - i);
-            if (t2 < lowest) {
-                lowest = t2;
-            }
-
-            i++;
-        } while (result >= lowest);
+        var averageFuelConsumption = CalculateFuel2(crabsPos, average);
+        var result = Math.Min(LowestPoint(crabsPos, average, 1, averageFuelConsumption), LowestPoint(crabsPos, average, -1, averageFuelConsumption));
         
         return new ValueTask<string>($"Result: `{result}`");
     }
 
+
+    public static int LowestPoint(int[] crabs, int position, int delta, int start) {
+        var result = start;
+        int temp;
+        var i = 1;
+        do {
+            temp = CalculateFuel2(crabs, position + i * delta);
+            i++;
+
+            // Temp is lower, update result
+            if (temp < result) {
+                result = temp;
+            }
+
+            // Lets exit
+            if (i > crabs.Length) {
+                break;
+            }
+        } while (start >= temp);
+
+        return result;
+    }
 }
