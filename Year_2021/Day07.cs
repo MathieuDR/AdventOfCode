@@ -53,7 +53,7 @@ public class Day07 : BaseDay {
         var average = CalculateAverage(crabsPos);
         var averageFuelConsumption = CalculateFuel2(crabsPos, average);
         var result = Math.Min(LowestPoint(crabsPos, average, 1, averageFuelConsumption), LowestPoint(crabsPos, average, -1, averageFuelConsumption));
-        
+
         return new ValueTask<string>($"Result: `{result}`");
     }
 
