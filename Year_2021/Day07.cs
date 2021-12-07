@@ -33,12 +33,7 @@ public class Day07 : BaseDay {
     public static int CalculateFuel2(int[] positions, int position) {
         return positions.Select(x => {
             var steps = Math.Abs(x - position);
-            var result = 0;
-            for (var i = steps; i > 0; i--) {
-                result += i;
-            }
-
-            return result;
+            return (steps * steps + steps) / 2;
         }).Sum();
     }
 
