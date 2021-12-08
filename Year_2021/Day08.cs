@@ -4,24 +4,25 @@ namespace AdventOfCode.Year_2021;
 ///     Day 06 from year 2021
 /// </summary>
 public class Day08 : BaseDay {
-    private readonly string[][] _patterns;
     private readonly string[][] _readings;
     private readonly string[][] _keys;
 
     public Day08() {
         var input = File.ReadAllLines(InputFilePath).Select(x => x.Split("|", StringSplitOptions.TrimEntries).Select(y => y.Split(" ")).ToArray())
             .ToArray();
-        _patterns = new string[input.Length][];
+
+        var patterns = new string[input.Length][];
         _readings = new string[input.Length][];
         _keys = new string[input.Length][];
         for (var index = 0; index < input.Length; index++) {
             var row = input[index];
-            _patterns[index] = row[0].Select(x => new string(x.OrderBy(c => c).ToArray())).OrderBy(x => x.Length).ToArray();
+            // We sort this to go from small to big, and also sort the letters
+            // So that every 'reading' is the same.
+            patterns[index] = row[0].Select(x => new string(x.OrderBy(c => c).ToArray())).OrderBy(x => x.Length).ToArray();
             _readings[index] = row[1].Select(x => new string(x.OrderBy(c => c).ToArray())).ToArray();
-            _keys[index] = SegmentSolver.SolveInputs(_patterns[index]);
+            _keys[index] = SegmentSolver.SolveInputs(patterns[index]);
         }
     }
-
 
     public override ValueTask<string> Solve_1() {
         var result = 0;
@@ -63,17 +64,35 @@ public class Day08 : BaseDay {
     public static class SegmentSolver {
         public static string[] SolveInputs(string[] inputs) {
             var segments = new string[10];
+            var segmentToCharDict = new Dictionary<SegmentDetails, char>();
+            SolveUniques(inputs, segments, segmentToCharDict);
+            Solve6Segments(inputs, segments, segmentToCharDict);
+            SolveSegmentDictionary(segments, segmentToCharDict);
+            Solve5Segments(inputs, segments, segmentToCharDict);
+            return segments;
+        }
+
+        private static void SolveUniques(string[] inputs, string[] segments, Dictionary<SegmentDetails, char> segmentToCharDict) {
             segments[1] = inputs[0]; // 1 Only has 2 segments, its the lowest
             segments[7] = inputs[1]; // 7 Only has 3 segments, it's the second lowest
             segments[4] = inputs[2]; // 4 Only has 4 segments, it's the third in the list
             segments[8] = inputs[^1]; // 8 Has all segments, it's the last 
 
-            var segmentToCharDict = new Dictionary<SegmentDetails, char>();
-            segmentToCharDict.Add(SegmentDetails.a, RemoveCharacters(segments[7], segments[1])[0]);
+            segmentToCharDict.Add(SegmentDetails.a, RemoveCharacters(segments[7], segments[1])[0]); // Add's a to dic
+        }
 
+        private static void Solve6Segments(string[] inputs, string[] segments, Dictionary<SegmentDetails, char> segmentToCharDict) {
             var _6Segments = inputs.Where(x => x.Length == 6).ToArray();
 
-            // Figure out segment 'g' through removing 4 on all 6 canditates
+            Solve9(segments, segmentToCharDict, _6Segments);
+
+            // Solve the rest
+            segments[6] = _6Segments.First(x => !segments[7].Select(x.Contains).All(b => b)); // 6 is where we don't have one segment of 7
+            segments[0] = _6Segments.First(x => x != segments[9] && x != segments[6]); // 0 is leftover of the numbers with 6 segments
+        }
+
+        private static void Solve9(string[] segments, Dictionary<SegmentDetails, char> segmentToCharDict, string[] _6Segments) {
+            // Figure out segment 'g' through removing 4 on all 6 candidates
             var leftovers = _6Segments.Select(x => RemoveCharacters(x, segments[4])).ToArray();
 
             var indexOf9 = leftovers.Select((value, index) => new { value, index = index + 1 }) // Get the index where there is only 2 chars
@@ -84,12 +103,11 @@ public class Day08 : BaseDay {
             segments[9] = _6Segments[indexOf9]; // Put 9 correct
 
             // Remove 7 from the leftovers, so we remove most of 9, which will only have 1 letter left
+            // We need this segment later
             segmentToCharDict.Add(SegmentDetails.g, RemoveCharacters(leftovers.OrderBy(x => x.Length).First(), segments[7])[0]);
+        }
 
-            segments[6] = _6Segments.First(x => !segments[7].Select(x.Contains).All(b => b)); // 6 is where we don't have one segment of 7
-            segments[0] = _6Segments.First(x => x != segments[9] && x != segments[6]); // 0 is leftover of the numbers with 6 segments
-
-
+        private static void SolveSegmentDictionary(string[] segments, Dictionary<SegmentDetails, char> segmentToCharDict) {
             // Figure out segment e by removing 4 from 6
             var segment_e = RemoveCharacters(segments[6], segments[4]);
 
@@ -105,26 +123,21 @@ public class Day08 : BaseDay {
             segmentToCharDict.Add(SegmentDetails.b,
                 RemoveCharacters(segments[8],
                     segmentToCharDict.Select(x => x.Value).ToArray())[0]); // add the leftover segment by removing all we have
+        }
 
+        private static void Solve5Segments(string[] inputs, string[] segments, Dictionary<SegmentDetails, char> segmentToCharDict) {
             // Solve 5 segments
             var _5Segments = inputs.Where(x => x.Length == 5).ToArray(); // Get all 5 segments, the leftovers
             segments[2] = _5Segments.First(x => x.Contains(segmentToCharDict[SegmentDetails.e])); // Only 2 has segment e
             segments[5] = _5Segments.First(x => x.Contains(segmentToCharDict[SegmentDetails.b])); // Only 5 has segment b
             segments[3] = _5Segments.First(x => x != segments[2] && x != segments[5]);
-
-            var distincts = segments.Distinct().Count();
-            if (distincts != 10) {
-                throw new InvalidOperationException("u dun goofed");
-            }
-
-            return segments;
         }
 
-        public static string RemoveCharacters(string input, string toRemove) {
+        private static string RemoveCharacters(string input, string toRemove) {
             return RemoveCharacters(input, toRemove.ToArray());
         }
 
-        public static string RemoveCharacters(string input, char[] toRemove) {
+        private static string RemoveCharacters(string input, char[] toRemove) {
             foreach (var c in toRemove) {
                 input = input.Replace(c.ToString(), string.Empty);
             }
