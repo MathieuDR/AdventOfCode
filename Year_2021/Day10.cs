@@ -103,7 +103,6 @@ public class Day10 : BaseDay {
             result += GetValueFromIllegalCharacter(chars.First());
         }
 
-        // `358737`
         return new ValueTask<string>($"Result: `{result}`");
     }
 
@@ -143,10 +142,8 @@ public class Day10 : BaseDay {
     }
 
     public override ValueTask<string> Solve_2() {
-        var autoCompletes = _nonIllegalLines.Select(GetLeftoversString).ToArray();
-
-        var autoCompleteScores = autoCompletes.Select(GetValueFromIncompleteString);
-        var result = GetAutoCompleteWinner(autoCompleteScores);
+        var autoCompletes = _nonIllegalLines.Select(GetLeftoversString).Select(GetValueFromIncompleteString).ToArray();
+        var result = GetAutoCompleteWinner(autoCompletes);
         return new ValueTask<string>($"Result: `{result}`");
     }
 }
