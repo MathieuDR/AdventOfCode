@@ -5,7 +5,6 @@ namespace AdventOfCode.Year_2021;
 /// </summary>
 public class Day12 : BaseDay {
     private readonly List<Cave> _caves;
-    private readonly List<List<Cave>> _allPaths;
 
     public Day12() {
         var pathways = File.ReadAllLines(InputFilePath);
@@ -18,8 +17,6 @@ public class Day12 : BaseDay {
             c1.ConnectedCaves.Add(c2);
             c2.ConnectedCaves.Add(c1);
         }
-
-        _allPaths = FindAllPathsToCave(_caves.First(x => x.IsStart), _caves.First(x => x.IsEnd));
     }
 
     private static List<List<Cave>> FindAllPathsToCave(Cave start, Cave end) {
@@ -54,14 +51,56 @@ public class Day12 : BaseDay {
     }
 
 
+    private static List<List<Cave>> FindAllPathsToCaveP2(Cave start, Cave end) {
+        var pathWays = new List<List<Cave>>();
+
+        foreach (var cave in start.ConnectedCaves) {
+            var path = new List<Cave> { cave };
+            pathWays.AddRange(FindAllPathsToCaveP2(cave, end, path));
+        }
+
+        return pathWays;
+    }
+
+    private static List<List<Cave>> FindAllPathsToCaveP2(Cave start, Cave end, List<Cave> currentPathway) {
+        var pathWays = new List<List<Cave>>();
+        foreach (var cave in start.ConnectedCaves) {
+            if (cave.IsStart) {
+                continue;
+            }
+
+            if (!cave.IsBig && currentPathway.Contains(cave)) {
+                var smalls = currentPathway.Where(c => !c.IsBig).ToArray();
+                var visitedSmallCaves = smalls.Count();
+                var distinctSmallCaves = smalls.Distinct().Count();
+
+                if (distinctSmallCaves != visitedSmallCaves) {
+                    continue;
+                }
+            }
+
+            var path = new List<Cave>(currentPathway);
+            path.Add(cave);
+
+            if (cave != end) {
+                pathWays.AddRange(FindAllPathsToCaveP2(cave, end, path));
+            } else {
+                pathWays.Add(path);
+            }
+        }
+
+        return pathWays;
+    }
+
+
     public override ValueTask<string> Solve_1() {
-        var result = _allPaths.Count;
+        var result = FindAllPathsToCave(_caves.First(x => x.IsStart), _caves.First(x => x.IsEnd)).Count;
         return new ValueTask<string>($"Result: `{result}`");
     }
 
     public override ValueTask<string> Solve_2() {
-        var counter = 0;
-        return new ValueTask<string>($"Result: `{counter}`");
+        var result = FindAllPathsToCaveP2(_caves.First(x => x.IsStart), _caves.First(x => x.IsEnd)).Count;
+        return new ValueTask<string>($"Result: `{result}`");
     }
 
     public class Cave {
