@@ -90,10 +90,10 @@ public class Day12 : BaseDay {
     }
 
     public class Cave {
-        public string Id { get; set; }
-        public bool IsBig { get; set; }
+        public string Id { get; }
+        public bool IsBig { get; }
         public bool IsStart => Id == "start";
-        public List<Cave> ConnectedCaves { get; set; } = new();
+        public List<Cave> ConnectedCaves { get; } = new();
         public bool IsEnd => Id == "end";
 
         public Cave(string id) {
