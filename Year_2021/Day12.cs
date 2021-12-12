@@ -8,7 +8,11 @@ public class Day12 : BaseDay {
 
     public Day12() {
         var pathways = File.ReadAllLines(InputFilePath);
+
+        // Create caves
         _caves = pathways.SelectMany(x => x.Split("-")).Distinct().Select(c => new Cave(c)).ToList();
+
+        // Create pathways
         foreach (var pathway in pathways) {
             var caves = pathway.Split("-");
             var c1 = _caves.First(c => c.Id == caves[0]);
@@ -19,30 +23,39 @@ public class Day12 : BaseDay {
         }
     }
 
-    private static List<List<Cave>> FindAllPathsToCave(Cave start, Cave end) {
+    private static List<List<Cave>> FindAllPathsToCave(Cave start, Cave end, bool revisitSmallCave = false) {
         var pathWays = new List<List<Cave>>();
 
+        // Start a path for each connected cave
         foreach (var cave in start.ConnectedCaves) {
             var path = new List<Cave> { cave };
-            pathWays.AddRange(FindAllPathsToCave(cave, end, path));
+            // Add the results from our pathfinding
+            // this is a range
+            pathWays.AddRange(FindAllPathsToCave(cave, end, path, revisitSmallCave));
         }
 
         return pathWays;
     }
 
-    private static List<List<Cave>> FindAllPathsToCave(Cave start, Cave end, List<Cave> currentPathway) {
+    private static List<List<Cave>> FindAllPathsToCave(Cave start, Cave end, List<Cave> currentPathway, bool revisitSmallCave) {
         var pathWays = new List<List<Cave>>();
         foreach (var cave in start.ConnectedCaves) {
-            if (!cave.IsBig && currentPathway.Contains(cave) || cave.IsStart) {
+            // When it's a start dont continue
+            // if it's a small cave & we have it in our list. Check if we can revisit the small cave
+            if (cave.IsStart || !cave.IsBig && currentPathway.Contains(cave) &&
+                (!revisitSmallCave || CurrentPathwayVisitedSmallCaveTwice(currentPathway))) {
                 continue;
             }
 
+            // Create a new path
             var path = new List<Cave>(currentPathway);
             path.Add(cave);
-
+            
             if (cave != end) {
-                pathWays.AddRange(FindAllPathsToCave(cave, end, path));
+                // If it's not the end, continue to iterate on this path
+                pathWays.AddRange(FindAllPathsToCave(cave, end, path, revisitSmallCave));
             } else {
+                // It's the end, so we can 'stop' this pathway and add it to our result
                 pathWays.Add(path);
             }
         }
@@ -50,46 +63,19 @@ public class Day12 : BaseDay {
         return pathWays;
     }
 
+    private static bool CurrentPathwayVisitedSmallCaveTwice(List<Cave> currentPathway) {
+        // Get all the small caves
+        var smalls = currentPathway.Where(c => !c.IsBig).ToArray();
 
-    private static List<List<Cave>> FindAllPathsToCaveP2(Cave start, Cave end) {
-        var pathWays = new List<List<Cave>>();
+        // Check how many we have
+        var visitedSmallCaves = smalls.Count();
 
-        foreach (var cave in start.ConnectedCaves) {
-            var path = new List<Cave> { cave };
-            pathWays.AddRange(FindAllPathsToCaveP2(cave, end, path));
-        }
+        // Check how many distincts
+        var distinctSmallCaves = smalls.Distinct().Count();
 
-        return pathWays;
-    }
-
-    private static List<List<Cave>> FindAllPathsToCaveP2(Cave start, Cave end, List<Cave> currentPathway) {
-        var pathWays = new List<List<Cave>>();
-        foreach (var cave in start.ConnectedCaves) {
-            if (cave.IsStart) {
-                continue;
-            }
-
-            if (!cave.IsBig && currentPathway.Contains(cave)) {
-                var smalls = currentPathway.Where(c => !c.IsBig).ToArray();
-                var visitedSmallCaves = smalls.Count();
-                var distinctSmallCaves = smalls.Distinct().Count();
-
-                if (distinctSmallCaves != visitedSmallCaves) {
-                    continue;
-                }
-            }
-
-            var path = new List<Cave>(currentPathway);
-            path.Add(cave);
-
-            if (cave != end) {
-                pathWays.AddRange(FindAllPathsToCaveP2(cave, end, path));
-            } else {
-                pathWays.Add(path);
-            }
-        }
-
-        return pathWays;
+        // If we don't have the same amount of distincts vs visited
+        // means we have visited a small cave twice
+        return distinctSmallCaves != visitedSmallCaves;
     }
 
 
@@ -99,7 +85,7 @@ public class Day12 : BaseDay {
     }
 
     public override ValueTask<string> Solve_2() {
-        var result = FindAllPathsToCaveP2(_caves.First(x => x.IsStart), _caves.First(x => x.IsEnd)).Count;
+        var result = FindAllPathsToCave(_caves.First(x => x.IsStart), _caves.First(x => x.IsEnd), true).Count;
         return new ValueTask<string>($"Result: `{result}`");
     }
 
