@@ -4,7 +4,6 @@ namespace AdventOfCode.Year_2021;
 ///     Day 13 from year 2021
 /// </summary>
 public class Day13 : BaseDay {
-    private bool[][] _page;
     private readonly (string axis, int value)[] _instructions;
     private List<(int x, int y)> _coords;
 
@@ -12,7 +11,6 @@ public class Day13 : BaseDay {
         var lines = File.ReadAllText(InputFilePath).Split(Environment.NewLine + Environment.NewLine).Select(x => x.Split(Environment.NewLine))
             .ToArray();
 
-        //_coords = lines[0].Select(x => x.Split(",").Select(int.Parse).ToArray()).OrderBy(c=> c[1]*10000+c[0]).ToArray();
         _coords = lines[0]
             .Select(x => x.Split(",").Select(int.Parse).ToArray())
             .OrderBy(c => c[1] * 10000 + c[0]).Select(x => (x: x[0], y: x[1]))
@@ -64,7 +62,26 @@ public class Day13 : BaseDay {
     }
 
     public override ValueTask<string> Solve_2() {
-        var result = 0;
+        for (var i = 1; i < _instructions.Length; i++) {
+            Fold(_instructions[i]);
+        }
+
+        Print();
+
+        var result = "HGAJBEHC";
         return new ValueTask<string>($"Result: `{result}`");
+    }
+
+    private void Print() {
+        var xLoops = _coords.Max(x => x.x);
+        var yLoops = _coords.Max(x => x.y);
+
+        for (var i = 0; i <= yLoops; i++) {
+            for (var j = 0; j <= xLoops; j++) {
+                Console.Write(_coords.Contains((j, i)) ? "$" : " ");
+            }
+
+            Console.WriteLine();
+        }
     }
 }
