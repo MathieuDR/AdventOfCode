@@ -78,7 +78,7 @@ public class Day13 : BaseDay {
 
         for (var i = 0; i <= yLoops; i++) {
             for (var j = 0; j <= xLoops; j++) {
-                Console.Write(_coords.Contains((j, i)) ? "$" : " ");
+                Console.Write(_coords.Contains((j, i)) ? "█" : " ");
             }
 
             Console.WriteLine();
