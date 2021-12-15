@@ -1,35 +1,39 @@
-using System.Text;
-
 namespace AdventOfCode.Year_2021;
 
 /// <summary>
 ///     Day 14 from year 2021
 /// </summary>
 public class Day14 : BaseDay {
-    private readonly (char LeftBound, char RightBount, string Bounds, char ToInsert)[] _instructions;
-    private readonly string _currentTemplate;
+    //private string _currentTemplate;
+
+    private readonly char _firstLetter;
+    private readonly (char LeftBound, char RightBount, char ToInsert)[] _instructions;
+
+    //private (char left, char right, long amount)[] groups;
+
+    private Dictionary<(char left, char right), long> groupDictionary;
 
     public Day14() {
         var lines = File.ReadAllText(InputFilePath).Split(Environment.NewLine + Environment.NewLine);
 
+        _firstLetter = lines[0][0];
+        var groups = new (char left, char right)[lines[0].Length - 1];
+        for (var i = 1; i < lines[0].Length; i++) {
+            groups[i - 1] = (lines[0][i - 1], lines[0][i]);
+        }
 
-        _currentTemplate = lines[0];
+        groupDictionary = groups.GroupBy(x => x).ToDictionary(x => x.Key, x => (long)x.Count());
 
-        // var instructionLines = lines[1].Split(Environment.NewLine);
-        // _instructions = new (char LeftBound, char RightBount, string Bounds, char ToInsert)[instructionLines.Length];
+
         _instructions = lines[1]
             .Split(Environment.NewLine)
             .Select(x => x.Split("->", StringSplitOptions.TrimEntries))
-            .Select(parts => (parts[0][0], parts[0][1], parts[0], parts[1][0]))
+            .Select(parts => (parts[0][0], parts[0][1], parts[1][0]))
             .ToArray();
-        // for (var i = 0; i < instructionLines.Length; i++) {
-        //     var instructionLine = instructionLines[i];
-        //     var parts = instructionLine.Split("->", StringSplitOptions.TrimEntries);
-        //     _instructions[i] = (parts[0][0], parts[0][1], parts[0], parts[1][0]);
-        // }
     }
 
-    private static string Step(string template, (char LeftBound, char RightBount, string Bounds, char ToInsert)[] instructions, int steps) {
+    private static Dictionary<(char left, char right), long> Step(Dictionary<(char left, char right), long> template,
+        (char LeftBound, char RightBount, char ToInsert)[] instructions, int steps) {
         for (var i = 0; i < steps; i++) {
             template = Step(template, instructions);
         }
@@ -37,29 +41,45 @@ public class Day14 : BaseDay {
         return template;
     }
 
-    private static string Step(string template, (char LeftBound, char RightBount, string Bounds, char ToInsert)[] instructions) {
-        var builder = new StringBuilder();
-        builder.Append(template[0]);
-        for (var i = 1; i < template.Length; i++) {
-            var right = template[i];
+    private static Dictionary<(char left, char right), long> Step(Dictionary<(char left, char right), long> template,
+        (char LeftBound, char RightBount, char ToInsert)[] instructions) {
+        var result = new Dictionary<(char left, char right), long>();
+        foreach (var kvp in template) {
+            var instruction = instructions.First(x => x.LeftBound == kvp.Key.left && x.RightBount == kvp.Key.right);
 
-            var newChar = instructions.First(x => x.LeftBound == builder[^1] && x.RightBount == right).ToInsert;
-            builder.Append(newChar);
-            builder.Append(right);
+            var pairs = new[] { (kvp.Key.left, instruction.ToInsert), (instruction.ToInsert, kvp.Key.right) };
+            foreach (var pair in pairs) {
+                if (!result.TryGetValue(pair, out var amount)) {
+                    amount = 0;
+                    result.Add(pair, amount);
+                }
+
+                result[pair] += kvp.Value;
+            }
         }
 
-        return builder.ToString();
+        return result;
+    }
+
+    private long CalculateResult(Dictionary<(char left, char right), long> template) {
+        var counts = template
+            .GroupBy(x => x.Key.right)
+            .Select(x => (x.Key, Count: x.Key == _firstLetter ? x.Sum(t => t.Value) + 1 : x.Sum(t => t.Value)))
+            .OrderByDescending(x => x.Count).ToArray();
+
+        return counts[0].Count - counts[^1].Count;
     }
 
     public override ValueTask<string> Solve_1() {
-        var template = Step(_currentTemplate, _instructions, 10);
-        var counts = template.GroupBy(x => x).Select(x => (x.Key, Count: x.Count())).OrderByDescending(x => x.Count).ToArray();
-        var result = counts[0].Count - counts[^1].Count;
+        groupDictionary = Step(groupDictionary, _instructions, 10);
+        var result = CalculateResult(groupDictionary);
+
         return new ValueTask<string>($"Result: `{result}`");
     }
 
     public override ValueTask<string> Solve_2() {
-        var result = "HGAJBEHC";
+        groupDictionary = Step(groupDictionary, _instructions, 30);
+        var result = CalculateResult(groupDictionary);
         return new ValueTask<string>($"Result: `{result}`");
     }
 }
