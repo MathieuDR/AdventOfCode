@@ -4,7 +4,6 @@ namespace AdventOfCode.Year_2021;
 ///     Day 15 from year 2021
 /// </summary>
 public class Day15 : BaseDay {
-    public readonly int[][] _graph;
 
     // A utility function to find the
     // vertex with minimum distance
@@ -15,7 +14,6 @@ public class Day15 : BaseDay {
 
     public Day15() {
         _map = File.ReadAllLines(InputFilePath).Select(x => x.Select(c => int.Parse(c.ToString())).ToArray()).ToArray();
-        _graph = ConvertToGraphs(_map);
     }
 
     private int MinDistance(int[] dist, bool[] sptSet) {
@@ -36,8 +34,8 @@ public class Day15 : BaseDay {
     // single source shortest path algorithm
     // for a graph represented using adjacency
     // matrix representation
-    private int[] Dijkstra(int[][] graph, int source) {
-        var graphLength = graph.Length;
+    private int[] Dijkstra(int[][] graph, int source, int loops = 1) {
+        var graphLength = graph.Length * graph.Length * loops * loops;
         var distance = new int[graphLength];
 
         // The output array. dist[i]
@@ -60,7 +58,8 @@ public class Day15 : BaseDay {
         // Distance of source vertex
         // from itself is always itself
         distance[source] = 0; //graph[source][source];
-
+        var printValue = (graph.Length + graph.Length) * loops;
+        Console.WriteLine($"Looping over {graphLength} values");
         // Find shortest path for all vertices
         for (var count = 0; count < graphLength; count++) {
             // Pick the minimum distance vertex
@@ -74,16 +73,25 @@ public class Day15 : BaseDay {
 
             // Update dist value of the adjacent
             // vertices of the picked vertex.
+
+            if (count % printValue == 0) {
+                Console.WriteLine($"Looped over {count / printValue} values");
+            }
             for (var v = 0; v < graphLength; v++) {
+                
+                
                 // Update dist[v] only if is not in
                 // sptSet, there is an edge from u
                 // to v, and total weight of path
                 // from src to v through u is smaller
                 // than current value of dist[v]
 
-                if (!shortestPathTreeSet[v] && graph[u][v] != 0 &&
-                    distance[u] != int.MaxValue && distance[u] + graph[u][v] < distance[v]) {
-                    distance[v] = distance[u] + graph[u][v];
+                //var value = GetValue(new Coordinate(u, v), graph);
+                var value = GetGraphValue(u, v, graph, loops);
+
+                if (!shortestPathTreeSet[v] && value != 0 &&
+                    distance[u] != int.MaxValue && distance[u] + value < distance[v]) {
+                    distance[v] = distance[u] + value;
                 }
             }
         }
@@ -91,87 +99,63 @@ public class Day15 : BaseDay {
         return distance;
     }
 
-    private static int[][] ConvertToGraphs(int[][] map) {
-        var length = map.Length * map.Length;
-        var result = new int[length][];
-        for (var i = 0; i < map.Length; i++) {
-            for (var u = 0; u < map.Length; u++) {
-                var nodeCounter = i * map.Length + u;
-                result[nodeCounter] = new int[length];
 
-                var currentCoord = new Coordinate(i, u);
-                var neighbours = GetNeighbours(map, currentCoord).ToArray();
+    private static int GetGraphValue(int currentNode, int nodeToCheck, int[][] map, int loops) {
+        var currentNodeCoords = NodeInListToCoordinates(currentNode, map.Length * loops);
+        var nodeToCheckCoords = NodeInListToCoordinates(nodeToCheck, map.Length * loops);
 
-                for (var nodeI = 0; nodeI < result[nodeCounter].Length; nodeI++) {
-                    var coord = new Coordinate(nodeI / map.Length, nodeI % map.Length);
+        if (AreNeighbours(currentNodeCoords, nodeToCheckCoords)) {
+            return GetValue(nodeToCheckCoords, map);
+        }
 
-                    var value = 0;
-                    if (coord == currentCoord || neighbours.Contains(coord)) {
-                        value = GetValue(coord, map);
-                    }
+        return 0;
+    }
 
-                    result[nodeCounter][nodeI] = value;
-                }
-            }
+    private static bool AreNeighbours(Coordinate nodeCoords, Coordinate nodeToCheckCoords) {
+        // They are the same, so no
+        if (nodeCoords == nodeToCheckCoords) {
+            return false;
+        }
+
+        var yDiff = Math.Abs(nodeCoords.Y - nodeToCheckCoords.Y);
+        var xDiff = Math.Abs(nodeCoords.X - nodeToCheckCoords.X);
+        return yDiff <= 1 && xDiff <= 1 && yDiff != xDiff;
+    }
+
+
+    private static Coordinate NodeInListToCoordinates(int node, int mapLenght) {
+        // var listLoop = mapLenght * mapLenght;
+
+        // var original = new Coordinate(node / mapLenght, node % mapLenght);
+        return new Coordinate(node / mapLenght, node % mapLenght);
+    }
+    
+    private static int GetValue(Coordinate coordinate, int[][] map) {
+        var length = map.Length;
+        var yLoops = coordinate.Y / length;
+        var xLoops = coordinate.X / length;
+
+        var originalCoord = new Coordinate(coordinate.Y % length, coordinate.X % length);
+        var originalValue = map[originalCoord.Y][originalCoord.X];
+        var result = originalValue + yLoops + xLoops;
+        while (result > 9) {
+            result -= 9;
         }
 
         return result;
     }
 
-    private static IEnumerable<Coordinate> GetNeighbours(int[][] map, Coordinate coordinate, bool diagonally = false) {
-        // Top
-        if (coordinate.Y > 0) {
-            yield return new Coordinate(coordinate.Y - 1, coordinate.X);
-        }
-
-        //Left
-        if (coordinate.X > 0) {
-            yield return new Coordinate(coordinate.Y, coordinate.X - 1);
-        }
-
-        //Top left
-        if (diagonally && coordinate.Y > 0 && coordinate.X > 0) {
-            yield return new Coordinate(coordinate.Y - 1, coordinate.X - 1);
-        }
-
-        //Right
-        if (coordinate.X < map[coordinate.Y].Length - 1) {
-            yield return new Coordinate(coordinate.Y, coordinate.X + 1);
-        }
-
-        // Top right
-        if (diagonally && coordinate.Y > 0 && coordinate.X < map[coordinate.Y].Length - 1) {
-            yield return new Coordinate(coordinate.Y - 1, coordinate.X + 1);
-        }
-
-        //Bottom
-        if (coordinate.Y < map.Length - 1) {
-            yield return new Coordinate(coordinate.Y + 1, coordinate.X);
-        }
-
-        //Bottom left
-        if (diagonally && coordinate.Y < map.Length - 1 && coordinate.X > 0) {
-            yield return new Coordinate(coordinate.Y + 1, coordinate.X - 1);
-        }
-
-        // Bottom right
-        if (diagonally && coordinate.Y < map.Length - 1 && coordinate.X < map[coordinate.Y].Length - 1) {
-            yield return new Coordinate(coordinate.Y + 1, coordinate.X + 1);
-        }
-    }
-
-    private static int GetValue(Coordinate coordinate, int[][] map) {
-        return map[coordinate.Y][coordinate.X];
-    }
-
 
     public override ValueTask<string> Solve_1() {
-        var paths = Dijkstra(_graph, 0);
-        var result = paths.Last();
+        // var paths = Dijkstra(_map, 0);
+        // var result = paths.Last();
+        var result = 0;
         return new ValueTask<string>($"Result: `{result}`");
     }
 
     public override ValueTask<string> Solve_2() {
+        // var paths = Dijkstra(_map, 0, 5);
+        // var result = paths.Last();
         var result = 0;
         return new ValueTask<string>($"Result: `{result}`");
     }
