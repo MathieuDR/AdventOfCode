@@ -4,51 +4,118 @@ namespace AdventOfCode.Year_2021;
 ///     Day 15 from year 2021
 /// </summary>
 public class Day15 : BaseDay {
+    public readonly int[][] _graph;
+
+    // A utility function to find the
+    // vertex with minimum distance
+    // value, from the set of vertices
+    // not yet included in shortest
+    // path tree
     public readonly int[][] _map;
 
     public Day15() {
         _map = File.ReadAllLines(InputFilePath).Select(x => x.Select(c => int.Parse(c.ToString())).ToArray()).ToArray();
+        _graph = ConvertToGraphs(_map);
     }
 
-    private static List<List<Coordinate>> FindAllPathsToEnd(Coordinate start, Coordinate end, int[][] map) {
-        var pathWays = new List<List<Coordinate>>();
-        var neighbours = GetNeighbours(map, start);
+    private int MinDistance(int[] dist, bool[] sptSet) {
+        // Initialize min value
+        int min = int.MaxValue, minIndex = -1;
 
-        // Start a path for each connected cave
-        foreach (var coordinate in neighbours) {
-            var path = new List<Coordinate> { start, coordinate };
-            // Add the results from our pathfinding
-            // this is a range
-            pathWays.AddRange(FindAllPathsToEnd(coordinate, end, path, map));
-        }
-
-        return pathWays;
-    }
-
-    private static List<List<Coordinate>> FindAllPathsToEnd(Coordinate start, Coordinate end, List<Coordinate> currentPathway, int[][] map) {
-        var pathWays = new List<List<Coordinate>>();
-        var neighbours = GetNeighbours(map, start);
-        foreach (var coordinate in neighbours) {
-            // When it's a start dont continue
-            // if it's a small cave & we have it in our list. Check if we can revisit the small cave
-            if (currentPathway.Contains(coordinate)) {
-                continue;
-            }
-
-            // Create a new path
-            var path = new List<Coordinate>(currentPathway);
-            path.Add(coordinate);
-
-            if (coordinate != end) {
-                // If it's not the end, continue to iterate on this path
-                pathWays.AddRange(FindAllPathsToEnd(coordinate, end, path, map));
-            } else {
-                // It's the end, so we can 'stop' this pathway and add it to our result
-                pathWays.Add(path);
+        for (var v = 0; v < dist.Length; v++) {
+            if (sptSet[v] == false && dist[v] <= min) {
+                min = dist[v];
+                minIndex = v;
             }
         }
 
-        return pathWays;
+        return minIndex;
+    }
+
+    // Function that implements Dijkstra's
+    // single source shortest path algorithm
+    // for a graph represented using adjacency
+    // matrix representation
+    private int[] Dijkstra(int[][] graph, int source) {
+        var graphLength = graph.Length;
+        var distance = new int[graphLength];
+
+        // The output array. dist[i]
+        // will hold the shortest
+        // distance from src to i
+
+        // sptSet[i] will true if vertex
+        // i is included in shortest path
+        // tree or shortest distance from
+        // src to i is finalized
+        var shortestPathTreeSet = new bool[graphLength];
+
+        // Initialize all distances as
+        // INFINITE and stpSet[] as false
+        for (var i = 0; i < graphLength; i++) {
+            distance[i] = int.MaxValue;
+            shortestPathTreeSet[i] = false;
+        }
+
+        // Distance of source vertex
+        // from itself is always itself
+        distance[source] = 0; //graph[source][source];
+
+        // Find shortest path for all vertices
+        for (var count = 0; count < graphLength; count++) {
+            // Pick the minimum distance vertex
+            // from the set of vertices not yet
+            // processed. u is always equal to
+            // src in first iteration.
+            var u = MinDistance(distance, shortestPathTreeSet);
+
+            // Mark the picked vertex as processed
+            shortestPathTreeSet[u] = true;
+
+            // Update dist value of the adjacent
+            // vertices of the picked vertex.
+            for (var v = 0; v < graphLength; v++) {
+                // Update dist[v] only if is not in
+                // sptSet, there is an edge from u
+                // to v, and total weight of path
+                // from src to v through u is smaller
+                // than current value of dist[v]
+
+                if (!shortestPathTreeSet[v] && graph[u][v] != 0 &&
+                    distance[u] != int.MaxValue && distance[u] + graph[u][v] < distance[v]) {
+                    distance[v] = distance[u] + graph[u][v];
+                }
+            }
+        }
+
+        return distance;
+    }
+
+    private static int[][] ConvertToGraphs(int[][] map) {
+        var length = map.Length * map.Length;
+        var result = new int[length][];
+        for (var i = 0; i < map.Length; i++) {
+            for (var u = 0; u < map.Length; u++) {
+                var nodeCounter = i * map.Length + u;
+                result[nodeCounter] = new int[length];
+
+                var currentCoord = new Coordinate(i, u);
+                var neighbours = GetNeighbours(map, currentCoord).ToArray();
+
+                for (var nodeI = 0; nodeI < result[nodeCounter].Length; nodeI++) {
+                    var coord = new Coordinate(nodeI / map.Length, nodeI % map.Length);
+
+                    var value = 0;
+                    if (coord == currentCoord || neighbours.Contains(coord)) {
+                        value = GetValue(coord, map);
+                    }
+
+                    result[nodeCounter][nodeI] = value;
+                }
+            }
+        }
+
+        return result;
     }
 
     private static IEnumerable<Coordinate> GetNeighbours(int[][] map, Coordinate coordinate, bool diagonally = false) {
@@ -93,14 +160,14 @@ public class Day15 : BaseDay {
         }
     }
 
-    private int GetValue(Coordinate coordinate) {
-        return _map[coordinate.Y][coordinate.X];
+    private static int GetValue(Coordinate coordinate, int[][] map) {
+        return map[coordinate.Y][coordinate.X];
     }
 
 
     public override ValueTask<string> Solve_1() {
-        var paths = FindAllPathsToEnd(new Coordinate(0, 0), new Coordinate(_map.Length, _map.Length), _map);
-        var result = paths.Select(x => x.Select(GetValue).Sum()).Min();
+        var paths = Dijkstra(_graph, 0);
+        var result = paths.Last();
         return new ValueTask<string>($"Result: `{result}`");
     }
 
@@ -109,5 +176,5 @@ public class Day15 : BaseDay {
         return new ValueTask<string>($"Result: `{result}`");
     }
 
-    private readonly record struct Coordinate(int X, int Y);
+    private readonly record struct Coordinate(int Y, int X);
 }
