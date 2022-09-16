@@ -3,7 +3,7 @@ using AdventOfCode.Year_2021;
 
 namespace Tests.Year_2021;
 
-public class Day07Tests {
+public sealed class Day07Tests {
     [Theory]
     [InlineData("16,1,2,0,4,2,7,1,2,14", 2)]
     [InlineData("2,2,0,4,2,7,1,2,14", 2)]

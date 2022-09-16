@@ -3,7 +3,7 @@
 /// <summary>
 ///     Day 05 from year 2021
 /// </summary>
-public class Day05 : BaseDay {
+internal sealed class Day05 : BaseDay {
     private readonly HydroThermalVent[] _vents;
     private readonly SeaFloor _seaFloor;
 
@@ -23,7 +23,7 @@ public class Day05 : BaseDay {
         return new ValueTask<string>($"Result: `{_seaFloor.HowManyNOverlaps(2)}`");
     }
 
-    public class SeaFloor {
+    internal sealed class SeaFloor {
         private readonly HydroThermalVent[] _hydroThermalVents;
         private int[][] _floor;
         private (int xBound, int yBound)? _floorBound;
@@ -125,7 +125,7 @@ public class Day05 : BaseDay {
         }
     }
 
-    public class HydroThermalVent {
+    internal sealed class HydroThermalVent {
         public (int x, int y) StartCoordinate { get; set; }
         public (int x, int y) EndCoordinate { get; set; }
 

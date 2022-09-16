@@ -3,7 +3,7 @@
 /// <summary>
 ///     Day 02 from year 2021
 /// </summary>
-public class Day02 : BaseDay {
+internal sealed class Day02 : BaseDay {
     private readonly string[] _commands;
 
     public Day02() {

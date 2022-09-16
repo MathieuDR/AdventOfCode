@@ -3,7 +3,7 @@ using AdventOfCode.Year_2021;
 
 namespace Tests.Year_2021;
 
-public class Day01Tests {
+public sealed class Day01Tests {
     [Fact]
     public void CanSolveFirstExample() {
         var input = "199\n200\n208\n210\n200\n207\n240\n269\n260\n263";

@@ -1,6 +1,6 @@
 ﻿namespace AdventOfCode.Year_2020;
 
-public class Day05 : BaseDay {
+internal sealed class Day05 : BaseDay {
     public enum Direction {
         Lower,
         Upper
@@ -33,7 +33,7 @@ public class Day05 : BaseDay {
             $"The missing seat is {missingSeat}");
     }
 
-    public class Seat {
+    internal sealed class Seat {
         public Seat(string direction) : this(ToDirections(direction)) { }
 
         public Seat(Direction[] directions) {

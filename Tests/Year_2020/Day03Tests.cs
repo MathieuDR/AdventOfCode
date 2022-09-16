@@ -3,7 +3,7 @@ using AdventOfCode.Year_2020;
 
 namespace Tests.Year_2020;
 
-public class Day03Tests {
+public sealed class Day03Tests {
     [Fact]
     public async Task canCalculateCorrectCollisions() {
         var input =

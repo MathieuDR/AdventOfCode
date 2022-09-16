@@ -3,7 +3,7 @@
 /// <summary>
 ///     Day 01 from year 2021
 /// </summary>
-public class Day01 : BaseDay {
+internal sealed class Day01 : BaseDay {
     public enum Direction {
         Up,
         Down,

@@ -3,7 +3,7 @@
 /// <summary>
 ///     Day 06 from year 2021
 /// </summary>
-public class Day06 : BaseDay {
+internal sealed class Day06 : BaseDay {
     private readonly long[] groups = new long[9];
     private const int _reproduceTime = 6;
 

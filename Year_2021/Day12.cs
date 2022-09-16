@@ -3,7 +3,7 @@ namespace AdventOfCode.Year_2021;
 /// <summary>
 ///     Day 12 from year 2021
 /// </summary>
-public class Day12 : BaseDay {
+internal sealed class Day12 : BaseDay {
     private readonly List<Cave> _caves;
 
     public Day12() {
@@ -89,7 +89,7 @@ public class Day12 : BaseDay {
         return new ValueTask<string>($"Result: `{result}`");
     }
 
-    public class Cave {
+    internal sealed class Cave {
         public string Id { get; }
         public bool IsBig { get; }
         public bool IsStart => Id == "start";

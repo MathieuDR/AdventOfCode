@@ -3,7 +3,7 @@ namespace AdventOfCode.Year_2021;
 /// <summary>
 ///     Day 10 from year 2021
 /// </summary>
-public class Day10 : BaseDay {
+internal sealed class Day10 : BaseDay {
     private readonly char[] _endCharacters = { ')', ']', '}', '>' };
     private readonly char[][] _illegalChars;
     private readonly string[] _lines;

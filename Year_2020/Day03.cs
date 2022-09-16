@@ -3,7 +3,7 @@
 /// <summary>
 ///     Day 2 from year 2020
 /// </summary>
-public class Day03 : BaseDay {
+internal sealed class Day03 : BaseDay {
     private readonly string[] map;
 
     public Day03() {

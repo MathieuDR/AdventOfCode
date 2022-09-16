@@ -2,7 +2,7 @@
 
 namespace Tests.Year_2021;
 
-public class Day03Tests {
+public sealed class Day03Tests {
     [Fact]
     public void MostCommonBitReturnsTrueForOddNumbersWithMostCommonTrue() {
         var input = new[] { false, true, true, false, true, true, true };

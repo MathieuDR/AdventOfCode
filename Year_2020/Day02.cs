@@ -5,7 +5,7 @@ namespace AdventOfCode.Year_2020;
 /// <summary>
 ///     Day 2 from year 2020
 /// </summary>
-public class Day02 : BaseDay {
+internal sealed class Day02 : BaseDay {
     private readonly PasswordRecord[] passwords;
 
     public Day02() {
@@ -22,7 +22,7 @@ public class Day02 : BaseDay {
             $"Toboggan, Valid passwords: {passwords.Count(x => x.IsValidForToboggan)}, invalid: {passwords.Count(x => !x.IsValidForToboggan)}");
     }
 
-    public class PasswordRecord {
+    internal sealed class PasswordRecord {
         private static readonly Regex regex = new(@"^(\d+)-(\d+) (\w): (\w+)$", RegexOptions.Compiled);
         private static readonly Dictionary<char, Regex> _regexes = new();
 

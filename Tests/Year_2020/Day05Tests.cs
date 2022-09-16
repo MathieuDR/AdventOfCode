@@ -2,7 +2,7 @@
 
 namespace Tests.Year_2020;
 
-public class Day05Tests {
+public sealed class Day05Tests {
     [Theory]
     [InlineData("FBFBBFFRLR", 44, 5, 357)]
     [InlineData("BFFFBBFRRR", 70, 7, 567)]

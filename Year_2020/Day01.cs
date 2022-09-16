@@ -3,7 +3,7 @@
 /// <summary>
 ///     Day 1 from year 2020
 /// </summary>
-public class Day01 : BaseDay {
+internal sealed class Day01 : BaseDay {
     private readonly int[] _numbers;
 
     public Day01() {

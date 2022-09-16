@@ -2,7 +2,7 @@
 
 namespace AdventOfCode.Year_2020;
 
-public class Day04 : BaseDay {
+internal sealed class Day04 : BaseDay {
     private readonly Passport[] _passports;
 
     public Day04() {
@@ -19,7 +19,7 @@ public class Day04 : BaseDay {
             $"There are {_passports.Count(x => x.IsValid())} valid passports");
     }
 
-    public class Passport {
+    internal sealed class Passport {
         public Passport(string record) {
             var lines = record.Split("\r\n");
 

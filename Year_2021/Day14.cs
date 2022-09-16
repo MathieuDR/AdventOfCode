@@ -3,7 +3,7 @@ namespace AdventOfCode.Year_2021;
 /// <summary>
 ///     Day 14 from year 2021
 /// </summary>
-public class Day14 : BaseDay {
+internal sealed class Day14 : BaseDay {
     //private string _currentTemplate;
 
     private readonly char _firstLetter;

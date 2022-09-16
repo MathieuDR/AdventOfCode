@@ -3,7 +3,7 @@ namespace AdventOfCode.Year_2021;
 /// <summary>
 ///     Day 09 from year 2021
 /// </summary>
-public class Day09 : BaseDay {
+internal sealed class Day09 : BaseDay {
     private readonly int[][] _map;
     private readonly (int row, int column)[] _lowestPoints;
 

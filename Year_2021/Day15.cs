@@ -3,7 +3,7 @@ namespace AdventOfCode.Year_2021;
 /// <summary>
 ///     Day 15 from year 2021
 /// </summary>
-public class Day15 : BaseDay {
+internal sealed class Day15 : BaseDay {
 
     // A utility function to find the
     // vertex with minimum distance

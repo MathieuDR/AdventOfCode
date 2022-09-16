@@ -40,7 +40,7 @@ public static class NumberExtensions {
         }
 
         if (minSize > size) {
-            throw new ArgumentException("There are too mani bits for this size");
+            throw new ArgumentException("There are too many bits for this size");
         }
 
         var result = new byte[size.Value];

@@ -2,7 +2,7 @@
 
 namespace Tests.Year_2021;
 
-public class Day02Tests {
+public sealed class Day02Tests {
     [Fact]
     public void CalculateDepthIsCorrect() {
         var input = "forward 5\ndown 5\nforward 8\nup 3\ndown 8\nforward 2";

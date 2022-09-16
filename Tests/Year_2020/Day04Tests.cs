@@ -2,7 +2,7 @@
 
 namespace Tests.Year_2020;
 
-public class Day04Tests {
+public sealed class Day04Tests {
     [Fact]
     public void NumberBetweenReturnsFalseForOverTheLimit() {
         var result = Day04.Passport.NumberBetween("2919", 1920, 2020);

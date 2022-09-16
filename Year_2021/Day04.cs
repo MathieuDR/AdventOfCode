@@ -3,7 +3,7 @@
 /// <summary>
 ///     Day 04 from year 2021
 /// </summary>
-public class Day04 : BaseDay {
+internal sealed class Day04 : BaseDay {
     private readonly BingoBoard[] _boards;
     private readonly int[] _draws;
     private readonly int drawIndex = 0;
@@ -57,7 +57,7 @@ public class Day04 : BaseDay {
         return new ValueTask<string>($"Result: `{last?.Score ?? -1}`");
     }
 
-    protected virtual IEnumerable<BingoBoard> OnDrawNumber(int arg) {
+    private IEnumerable<BingoBoard> OnDrawNumber(int arg) {
         if (DrawNumber == null) {
             return null;
         }
@@ -75,7 +75,7 @@ public class Day04 : BaseDay {
         return list;
     }
 
-    public class BingoBoard {
+    internal sealed class BingoBoard {
         private readonly int[][] _board;
         private readonly bool[][] _drawn;
         private int _lastNumber;

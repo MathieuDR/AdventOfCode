@@ -3,7 +3,7 @@ namespace AdventOfCode.Year_2021;
 /// <summary>
 ///     Day 13 from year 2021
 /// </summary>
-public class Day13 : BaseDay {
+internal sealed class Day13 : BaseDay {
     private readonly (string axis, int value)[] _instructions;
     private List<(int x, int y)> _coords;
 

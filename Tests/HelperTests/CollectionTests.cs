@@ -5,7 +5,7 @@ using AdventOfCode.Common.Helpers;
 
 namespace Tests.HelperTests;
 
-public class CollectionTests {
+public sealed class CollectionTests {
     [Fact]
     public void TransposeOfBytesShouldReturnAResult() {
         var inp = new byte[] { 1, 4, 8, 16, 32, 64, 128, 255 };
