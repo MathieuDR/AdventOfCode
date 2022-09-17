@@ -7,31 +7,37 @@ namespace AdventOfCode.Year_2021;
 ///     Day 16 from year 2021
 /// </summary>
 internal sealed class Day16 : BaseDay {
-    private readonly byte[] _bytes;
+    private byte[] _bytes;
     private readonly string _hex;
-    private readonly BitArray _bitArray;
+    private BitArray _bitArray;
+    public Packet Packet;
 
     public Day16() {
         _hex = File.ReadAllText(InputFilePath);
-        _bytes = ConvertToBytes(_hex, 0);
-        _bitArray = _bytes.ToReversedBitArray();
+        Init();
     }
 
-    private byte[] ConvertToBytes(string hex, int startIndex, int? length = null) =>
-        ConvertToBytes(hex, startIndex, length ?? hex.Length - startIndex);
+    public Day16(string hex) {
+        _hex = hex;
+        Init();
+    }
 
-    private byte[] ConvertToBytes(string hex, int startIndex, int length) => ConvertToBytes(hex.Substring(startIndex, length));
+    private void Init() {
+        _bytes = ConvertToBytes(_hex);
+        _bitArray = _bytes.ToReversedBitArray();
+        Packet = new Packet(_bitArray);
+    }
 
     private byte[] ConvertToBytes(string hex) => Convert.FromHexString(hex);
 
 
     public override ValueTask<string> Solve_1() {
-        var result = new Packet(_bitArray).SummedVersion;
+        var result = Packet.SummedVersion;
         return new ValueTask<string>($"Result: `{result}`");
     }
 
     public override ValueTask<string> Solve_2() {
-        var result = 0;
+        var result = Packet.Value;
         return new ValueTask<string>($"Result: `{result}`");
     }
 }
@@ -45,9 +51,10 @@ internal sealed class Packet {
     public byte Version { get; }
 
     public int SummedVersion => Version + Payload.SummedVersion;
-    public byte Type { get; }
 
-    public byte[] LeftOver { get; }
+    public ulong Value => Payload.Value;
+    
+    public byte Type { get; }
     private Payload Payload { get; }
 
     public Packet(BitArray bits) {
@@ -59,22 +66,84 @@ internal sealed class Packet {
         Type = @byte.GetBytePart(TypeMask, 2);
         bits.RightShift(6);
 
-        if (Type == 4) {
-            Payload = new LiteralPayload(bits);
-        } else {
-            Payload = new OperatorPayload(bits);
-        }
+        Payload = Type switch {
+            0 => new SumOperatorPayload(bits),
+            1 => new ProductOperatorPayload(bits),
+            2 => new MinOperatorPayload(bits),
+            3 => new MaxOperatorPayload(bits),
+            4 => new LiteralPayload(bits),
+            5 => new GreaterOperatorPayload(bits),
+            6 => new LessOperatorPayload(bits),
+            7 => new EqualOperatorPayload(bits),
+            _ => throw new ArgumentOutOfRangeException()
+        };
     }
 }
 
 internal abstract class Payload {
     public abstract int Length { get; }
     public virtual int SummedVersion => 0;
+    public abstract ulong Value { get; }
 }
 
-internal sealed class OperatorPayload : Payload {
+internal sealed class SumOperatorPayload : OperatorPayload {
+    public SumOperatorPayload(BitArray bits) : base(bits) { }
+
+    public override ulong Value {
+        get {
+            ulong num = 0;
+            foreach (var packet in _packets) {
+                num += packet.Value;
+            }
+
+            return num;
+        }
+    }
+}
+
+internal sealed class ProductOperatorPayload : OperatorPayload {
+    public ProductOperatorPayload(BitArray bits) : base(bits) { }
+
+    public override ulong Value {
+        get {
+            ulong num = 1;
+            foreach (var packet in _packets) {
+                num *= packet.Value;
+            }
+
+            return num;
+        }
+    }
+}
+
+internal sealed class MinOperatorPayload : OperatorPayload {
+    public MinOperatorPayload(BitArray bits) : base(bits) { }
+    public override ulong Value => _packets.Min(x => x.Value);
+}
+
+internal sealed class MaxOperatorPayload : OperatorPayload {
+    public MaxOperatorPayload(BitArray bits) : base(bits) { }
+    public override ulong Value => _packets.Max(x => x.Value);
+}
+
+internal sealed class GreaterOperatorPayload : OperatorPayload {
+    public GreaterOperatorPayload(BitArray bits) : base(bits) { }
+    public override ulong Value => _packets[0].Value > _packets[1].Value ? (ulong)1 : 0;
+}
+
+internal sealed class LessOperatorPayload : OperatorPayload {
+    public LessOperatorPayload(BitArray bits) : base(bits) { }
+    public override ulong Value => _packets[0].Value < _packets[1].Value ? (ulong)1 : 0;
+}
+
+internal sealed class EqualOperatorPayload : OperatorPayload {
+    public EqualOperatorPayload(BitArray bits) : base(bits) { }
+    public override ulong Value => _packets[0].Value == _packets[1].Value ? (ulong)1 : 0;
+}
+
+internal abstract class OperatorPayload : Payload {
     private readonly bool _lenghtType;
-    private readonly Packet[] _packets;
+    protected readonly Packet[] _packets;
 
     public override int SummedVersion => _packets.Sum(x => x.SummedVersion);
 
@@ -91,6 +160,7 @@ internal sealed class OperatorPayload : Payload {
 
             _packets = result.ToArray();
         } else {
+            // 00000110101
             bits.RightShift(12);
             var secondBits = bytes[..2].ToReversedBitArray();
             secondBits.LeftShift(4);
@@ -113,7 +183,6 @@ internal sealed class LiteralPayload : Payload {
     private const int Mask = 15 << 3;
     private const int FirstBitMask = 1 << 7;
 
-    public int Value { get; }
 
     public LiteralPayload(BitArray bits) {
         var firstBit = false;
@@ -128,8 +197,9 @@ internal sealed class LiteralPayload : Payload {
 
 
         for (var i = 0; i < results.Count; i++) {
-            var number = results[i];
-            var part = number << ((results.Count - i - 1) * 4);
+            var number = (ulong)results[i];
+            var shift = (results.Count - i - 1) * 4;
+            var part = number << shift;
             Value = part | Value;
         }
 
@@ -137,7 +207,6 @@ internal sealed class LiteralPayload : Payload {
         //Length = resultLength + (4 - (resultLength + 6) % 4); // padding
         Length = resultLength;
     }
-
-    private byte[] Parts { get; }
     public override int Length { get; }
+    public override ulong Value { get; }
 }

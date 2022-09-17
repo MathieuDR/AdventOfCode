@@ -41,3 +41,4 @@ public sealed class Day07Tests {
         fuel.Should().Be(expected);
     }
 }
+
