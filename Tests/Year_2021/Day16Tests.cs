@@ -11,7 +11,7 @@ public sealed class Day16Tests {
     [InlineData("C0015000016115A2E0802F182340", 23)]
     [InlineData("A0016C880162017C3686B18A3D4780", 31)]
     public void Packet_ShouldHaveCorrectSummedVersion(string input, int expected) {
-        var packet = Day16.ReadPacket(new BitReader(input));
+        var packet = Day16.ReadPacket(new Day16.BitReader(input));
         var result = Day16.SumVersions(packet);
         result.Should().Be(expected);
     }
@@ -26,7 +26,7 @@ public sealed class Day16Tests {
     [InlineData("9C005AC2F8F0", 0)]
     [InlineData("9C0141080250320F1802104A08", 1)]
     public void Packet_ShouldHaveCorrectValue(string input, long expected) {
-        var packet = Day16.ReadPacket(new BitReader(input));
+        var packet = Day16.ReadPacket(new Day16.BitReader(input));
         var result = Day16.CalculatePayload(packet);
         result.Should().Be(expected);
     }
@@ -39,7 +39,7 @@ public sealed class Day16Tests {
             true, false, false, false, true, false, true, false, false, false
         });
 
-        var reader = new BitReader(hex);
+        var reader = new Day16.BitReader(hex);
 
         reader.Bits.Should().BeEquivalentTo(expected);
 
@@ -55,7 +55,7 @@ public sealed class Day16Tests {
             false, false, true, false, false, false, false, false, false, false, false, false
         });
 
-        var reader = new BitReader(hex);
+        var reader = new Day16.BitReader(hex);
 
         reader.Bits.Should().BeEquivalentTo(expected);
     }
@@ -63,7 +63,7 @@ public sealed class Day16Tests {
     [Fact]
     public void BitReader_ShouldReadCorrectInt_WhenOnlyReadingItOnce() {
         var hex = "D2FE28";
-        var reader = new BitReader(hex);
+        var reader = new Day16.BitReader(hex);
 
         var result = reader.ReadInteger(3);
 
@@ -73,7 +73,7 @@ public sealed class Day16Tests {
     [Fact]
     public void BitReader_ShouldReadCorrectInt_WhenReadingTwice() {
         var hex = "D2FE28";
-        var reader = new BitReader(hex);
+        var reader = new Day16.BitReader(hex);
             
         _ = reader.ReadInteger(3);
         var result = reader.ReadInteger(3);
@@ -84,9 +84,9 @@ public sealed class Day16Tests {
     [Fact]
     public void ReadPacket_ShouldReadPacket_WhenItsLiteralPacket() {
         var hex = "D2FE28";
-        var expected = new Packet(4, 6, 2021, Array.Empty<Packet>());
+        var expected = new Day16.Packet(4, 6, 2021, Array.Empty<Day16.Packet>());
 
-        var result = Day16.ReadPacket(new BitReader(hex));
+        var result = Day16.ReadPacket(new Day16.BitReader(hex));
 
         result.Should().BeEquivalentTo(expected);
     }
@@ -94,12 +94,12 @@ public sealed class Day16Tests {
     [Fact]
     public void ReadPacket_ShouldReadPacket_WhenItsOperatorPacketWithLengthType0() {
         var hex = "38006F45291200";
-        var expected = new Packet(6, 1, 0L, new [] {
-            new Packet(4, 6, 10L, Array.Empty<Packet>()),
-            new Packet(4, 2, 20L, Array.Empty<Packet>())
+        var expected = new Day16.Packet(6, 1, 0L, new [] {
+            new Day16.Packet(4, 6, 10L, Array.Empty<Day16.Packet>()),
+            new Day16.Packet(4, 2, 20L, Array.Empty<Day16.Packet>())
         });
 
-        var result = Day16.ReadPacket(new BitReader(hex));
+        var result = Day16.ReadPacket(new Day16.BitReader(hex));
 
         result.Should().BeEquivalentTo(expected);
     }
@@ -107,13 +107,13 @@ public sealed class Day16Tests {
     [Fact]
     public void ReadPacket_ShouldReadPacket_WhenItsOperatorPacketWithLengthType1() {
         var hex = "EE00D40C823060";
-        var expected = new Packet(3, 7, 0L, new [] {
-            new Packet(4, 2, 1L, Array.Empty<Packet>()),
-            new Packet(4, 4, 2L, Array.Empty<Packet>()),
-            new Packet(4, 1, 3L, Array.Empty<Packet>())
+        var expected = new Day16.Packet(3, 7, 0L, new [] {
+            new Day16.Packet(4, 2, 1L, Array.Empty<Day16.Packet>()),
+            new Day16.Packet(4, 4, 2L, Array.Empty<Day16.Packet>()),
+            new Day16.Packet(4, 1, 3L, Array.Empty<Day16.Packet>())
         });
 
-        var result = Day16.ReadPacket(new BitReader(hex));
+        var result = Day16.ReadPacket(new Day16.BitReader(hex));
 
         result.Should().BeEquivalentTo(expected);
     }

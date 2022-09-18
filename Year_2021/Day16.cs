@@ -7,14 +7,14 @@ namespace AdventOfCode.Year_2021;
 ///     Day 16 from year 2021
 /// </summary>
 internal sealed class Day16 : BaseDay {
-    public Packet Packet;
+    public Packet PayloadPacket;
 
     public Day16() {
-        Packet = ReadPacket(new BitReader(File.ReadAllText(InputFilePath)));
+        PayloadPacket = ReadPacket(new BitReader(File.ReadAllText(InputFilePath)));
     }
 
     public Day16(string hex) {
-        Packet = ReadPacket(new BitReader(hex));
+        PayloadPacket = ReadPacket(new BitReader(hex));
     }
 
     public static Packet ReadPacket(BitReader reader) {
@@ -89,39 +89,39 @@ internal sealed class Day16 : BaseDay {
     }
 
     public override ValueTask<string> Solve_1() {
-        var result = SumVersions(Packet);
+        var result = SumVersions(PayloadPacket);
         return new ValueTask<string>($"Result: `{result}`");
     }
 
     public override ValueTask<string> Solve_2() {
-        var result = CalculatePayload(Packet);
+        var result = CalculatePayload(PayloadPacket);
         return new ValueTask<string>($"Result: `{result}`");
     }
-}
+    
+    internal sealed class BitReader {
+        public int Pointer { get; private set; } = 0;
+        public BitArray Bits;
 
-internal sealed class BitReader {
-    public int Pointer { get; private set; } = 0;
-    public BitArray Bits;
+        public BitReader(string hex) : this(Convert.FromHexString(hex).ToReversedBitArray()){}
 
-    public BitReader(string hex) : this(Convert.FromHexString(hex).ToReversedBitArray()){}
-
-    public BitReader(BitArray bits) {
-        Bits = bits;
-    }
-
-    public bool ReadBool() => Bits[Pointer++];
-
-    public int ReadInteger(int bitCount) {
-        var result = 0;
-        var offset = bitCount - 1;
-        for (var i = 0; i < bitCount; i++) {
-            if (ReadBool()) {
-                result |= 1 << offset - i;
-            }
+        public BitReader(BitArray bits) {
+            Bits = bits;
         }
 
-        return result;
-    }
-}
+        public bool ReadBool() => Bits[Pointer++];
 
-internal sealed record Packet(int Type, int Version, long Value, Packet[] SubPackets);
+        public int ReadInteger(int bitCount) {
+            var result = 0;
+            var offset = bitCount - 1;
+            for (var i = 0; i < bitCount; i++) {
+                if (ReadBool()) {
+                    result |= 1 << offset - i;
+                }
+            }
+
+            return result;
+        }
+    }
+    
+    internal sealed record Packet(int Type, int Version, long Value, Packet[] SubPackets);
+}
