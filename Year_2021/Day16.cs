@@ -21,31 +21,39 @@ internal sealed class Day16 : BaseDay {
         var version = reader.ReadInteger(3);
         var type = reader.ReadInteger(3);
         var value = 0L;
-        var packets = new List<Packet>();
+        var packets = Array.Empty<Packet>();
 
         if (type == 4) {
             value = ReadLiteralValue(reader);
         } else {
-            var lengthType = reader.ReadBool();
-            if (lengthType) {
-                // We have a package amount
-                var packetAmount = reader.ReadInteger(11);
-                for (int i = 0; i < packetAmount; i++) {
-                    packets.Add(ReadPacket(reader));
-                }
-            } else {
-                // We have the exact number of bits for the next packages
-                // 15 bits
-                var bitAmount = reader.ReadInteger(15);
-                var startPosition = reader.Pointer;
-                var endPosition = startPosition + bitAmount;
-                while (reader.Pointer < endPosition) {
-                    packets.Add(ReadPacket(reader));
-                }
-            }
+            packets = ReadSubPackages(reader).ToArray();
         }
         
-        return new Packet(type,version, value, packets.ToArray());
+        return new Packet(type,version, value, packets);
+    }
+
+    private static List<Packet> ReadSubPackages(BitReader reader) {
+        var result = new List<Packet>();
+        var lengthType = reader.ReadBool();
+        
+        if (lengthType) {
+            // We have a package amount
+            var packetAmount = reader.ReadInteger(11);
+            for (int i = 0; i < packetAmount; i++) {
+                result.Add(ReadPacket(reader));
+            }
+        } else {
+            // We have the exact number of bits for the next packages
+            // 15 bits
+            var bitAmount = reader.ReadInteger(15);
+            var startPosition = reader.Pointer;
+            var endPosition = startPosition + bitAmount;
+            while (reader.Pointer < endPosition) {
+                result.Add(ReadPacket(reader));
+            }
+        }
+
+        return result;
     }
 
     private static long ReadLiteralValue(BitReader reader) {
@@ -65,9 +73,19 @@ internal sealed class Day16 : BaseDay {
         var summed = packet.SubPackets.Sum(SumVersions);
         return summed + packet.Version;
     }
-
+    
     public static long CalculatePayload(Packet packet) {
-        return 0L;
+        return packet.Type switch {
+            0 => packet.SubPackets.Sum(CalculatePayload),
+            1 => packet.SubPackets.Aggregate(1L, (seed, p2) => seed * CalculatePayload(p2)),
+            2 => packet.SubPackets.Min(CalculatePayload),
+            3 => packet.SubPackets.Max(CalculatePayload),
+            4 => packet.Value,
+            5 => CalculatePayload(packet.SubPackets[0]) > CalculatePayload(packet.SubPackets[1]) ? 1L : 0L,
+            6 => CalculatePayload(packet.SubPackets[0]) < CalculatePayload(packet.SubPackets[1]) ? 1L : 0L,
+            7 => CalculatePayload(packet.SubPackets[0]) == CalculatePayload(packet.SubPackets[1]) ? 1L : 0L,
+            _ => throw new ArgumentOutOfRangeException()
+        };
     }
 
     public override ValueTask<string> Solve_1() {
