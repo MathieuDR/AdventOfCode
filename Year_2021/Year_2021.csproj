@@ -6,6 +6,7 @@
         <OutputType>Exe</OutputType>
         <AssemblyName>AdventOfCode_2021</AssemblyName>
         <RootNamespace>AdventOfCode.Year_2021</RootNamespace>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
@@ -70,6 +71,9 @@
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
         <None Update="Inputs\17.txt">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+        <None Update="Inputs\18.txt">
           <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
     </ItemGroup>
