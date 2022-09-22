@@ -1,0 +1,11 @@
+﻿{
+  Left: {
+    Value: 1,
+    HasParent: true
+  },
+  Right: {
+    Value: 2,
+    HasParent: true
+  },
+  HasParent: false
+}
