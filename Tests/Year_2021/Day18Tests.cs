@@ -11,7 +11,8 @@ public sealed class Day18Tests {
 
     internal readonly Func<string, Day18.Node> Reader = Day18.Helper.Read;
     internal readonly Func<Day18.Node, Day18.Node, Day18.Node> Addition = Day18.Add;
-    internal readonly Func<string, Day18.Node> Reduce = s => Day18.Reduce(Day18.Helper.Read(s));
+    internal readonly Func<string, Day18.Node> ReduceString = s => Day18.Reduce(Day18.Helper.Read(s));
+    internal readonly Func< Day18.Node, Day18.Node> Reduce = Day18.Reduce;
 
     [Fact]
     public Task Reader_ShouldParseNode_WhenGivenSingle() {
@@ -114,9 +115,91 @@ public sealed class Day18Tests {
         //var expectedNode = Reader(expected);
 
         //Act
-        var result = Reduce(input);
+        var result = ReduceString(input);
 
         //Assert
         result.ToString().Should().Be(expected, scenario);
+    }
+    
+    [Fact]
+    public void Reduce_ShouldExplodeAndSplit_WhenMultipleActons() {
+        // [7,[6,[1,[4,[8,2]]]]]
+        // [7,[6,[1,[12,0]]]]
+        // [7,[6,[1,[[6,6],0]]]]
+        // [7,[6,[7,[0,6]]]]
+        //Arrange
+        var input = Reader("[7,[6,[1,[4,[8,2]]]]]"); 
+            
+        //Act
+        var result = Reduce(input);
+
+        //Assert
+        result.ToString().Should().Be("[7,[6,[7,[0,6]]]]");
+    }
+    
+    [Fact]
+    public void Reduce_ShouldSplit_WhenNestedDoubleSplit() {
+        //Arrange
+        var input = Reader("[[3,9],[[1,3],3]]");
+        input.Left!.Right = new Day18.Literal(14, input.Left!.Right!.Level);
+        input.Right!.Left!.Left = new Day18.Literal(18,  input.Right!.Left!.Left!.Level);
+            
+        //Act
+        var result = Reduce(input);
+
+        //Assert
+        result.ToString().Should().Be("[[3,[7,7]],[[[9,9],3],3]]");
+    }
+    
+    [Fact]
+    public void Reduce_ShouldSplit_WhenNestedEvenSplit() {
+        //Arrange
+        var input = Reader("[[3,9],[[1,3],3]]");
+        input.Right!.Left!.Left = new Day18.Literal(18,  input.Right!.Left!.Left!.Level);
+            
+        //Act
+        var result = Reduce(input);
+
+        //Assert
+        result.ToString().Should().Be("[[3,9],[[[9,9],3],3]]");
+    }
+    
+    [Fact]
+    public void Reduce_ShouldSplit_WhenNestedUnevenSplit() {
+        //Arrange
+        var input = Reader("[[3,9],[[1,3],3]]");
+        input.Right!.Left!.Left = new Day18.Literal(17,  input.Right!.Left!.Left!.Level);
+            
+        //Act
+        var result = Reduce(input);
+
+        //Assert
+        result.ToString().Should().Be("[[3,9],[[[8,9],3],3]]");
+    }
+
+    [Fact]
+    public void Reduce_ShouldSplit_WhenSimpleEvenSplit() {
+        //Arrange
+        var input = Reader("[1,3]");
+        input.Left = new Day18.Literal(12, input.Left!.Level);
+
+        //Act
+        var result = Reduce(input);
+
+        //Assert
+        result.ToString().Should().Be("[[6,6],3]");
+    }
+    
+    [Fact]
+    public void Reduce_ShouldSplit_WhenSimpleUnevenSplit() {
+        //Arrange
+        var input = Reader("[1,3]");
+        input.Left = new Day18.Literal(13, input.Left!.Level);
+
+        //Act
+        var result = Reduce(input);
+
+        //Assert
+        result.ToString().Should().Be("[[6,7],3]");
     }
 }

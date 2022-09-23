@@ -25,7 +25,7 @@ internal sealed class Day18 : BaseDay {
             result.Right.Parent = result;
         }
 
-        return result;
+        return Reduce(result);
     }
 
     private static Node Change(Node node, Func<Node, Node> func) {
@@ -38,8 +38,33 @@ internal sealed class Day18 : BaseDay {
 
     public static Node Reduce(Node node) {
         Explode(node, false);
+        var newNode =  Change(node, n => n is Literal { Value: > 9 } ? Split(n) : n);
+        newNode = Helper.FixParents(newNode);
+        var str = newNode.ToString();
+        Explode(newNode, false);
+        
+        if (str == newNode.ToString()) {
+            return newNode;
+        }
 
-        return node;
+        return Reduce(newNode);
+    }
+
+    private static Node Split(Node node) {
+        if (node is not Literal { Value: > 9 } l) {
+            return node;
+        }
+
+        var newLevel = l.Level + 1;
+        var p = new Pair(new Literal((short)Math.Floor((decimal)(l.Value / 2F)), newLevel),
+            new Literal((short)Math.Ceiling((decimal)(l.Value / 2F)), newLevel), newLevel);
+
+        // p.Left!.Parent = p;
+        // p.Right!.Parent = p;
+        // p.Parent = node.Parent;
+        // // }
+
+        return p;
     }
 
     // we´re mutating this boys
@@ -108,16 +133,16 @@ internal sealed class Day18 : BaseDay {
     }
 
     internal static class Helper {
-        public static Node Read(string input) => AddParentLink(Read(input.AsSpan(), 0, out _));
+        public static Node Read(string input) => FixParents(Read(input.AsSpan(), 0, out _));
 
 
-        public static Node AddParentLink(Node current, Node? parent = null) {
+        public static Node FixParents(Node current, Node? parent = null) {
             if (current.Left is not null) {
-                AddParentLink(current.Left, current);
+                FixParents(current.Left, current);
             }
 
             if (current.Right is not null) {
-                AddParentLink(current.Right, current);
+                FixParents(current.Right, current);
             }
 
             if (parent is not null) {
