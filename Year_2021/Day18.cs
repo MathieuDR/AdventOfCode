@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Globalization;
 
 namespace AdventOfCode.Year_2021;
@@ -21,7 +20,7 @@ internal sealed class Day18 : BaseDay {
         if (result.Left is not null) {
             result.Left.Parent = result;
         }
-        
+
         if (result.Right is not null) {
             result.Right.Parent = result;
         }
@@ -38,45 +37,63 @@ internal sealed class Day18 : BaseDay {
     }
 
     public static Node Reduce(Node node) {
-        var newNode = node.Level >= 4 ? Explode(node) : node;
-       _ = newNode.Left is null ? null : Reduce(newNode.Left);
-        var right = newNode.Right is null ? null : Reduce(newNode.Right);
-        var left2 = newNode.Left is null ? null : Reduce(newNode.Left);
+        Explode(node, false);
 
-        return newNode with { Left = left2, Right = right };
+        return node;
     }
 
-    private static Node Explode(Node node) {
-        if (node is not Pair literalPair) {
-            throw new Exception("expected literal");
+    // we´re mutating this boys
+    private static void Explode(Node node, bool isLeft) {
+        if (node.Level < 4) {
+            if (node.Left is not null) {
+                Explode(node.Left, true);
+            }
+
+            if (node.Right is not null) {
+                Explode(node.Right, false);
+            }
+
+            return;
         }
 
-        Debug.Assert(literalPair.Left != null, "literalPair.Left != null");
-        var leftLiteral = (Literal)literalPair.Left;
-        Debug.Assert(literalPair.Right != null, "literalPair.Right != null");
-        var rightLiteral = (Literal)literalPair.Right;
+        // we´re deeper then 4. must be literal
+        var leftLiteral = (Literal)node.Left!;
+        var rightLiteral = (Literal)node.Right!;
 
-        Debug.Assert(node.Parent != null, "node.Parent != null");
-        AddToFirst(leftLiteral.Value, node.Parent, true);
-        AddToFirst(rightLiteral.Value, node.Parent, false);
+        var newValue = new Literal(0, 3) { Parent = node.Parent!.Parent };
 
-        return new Literal(0, node.Level - 1){ Parent = node.Parent.Parent};
+        AddToFirst(leftLiteral.Value, node.Parent!, true, node);
+        AddToFirst(rightLiteral.Value, node.Parent!, false, node);
+
+        if (isLeft) {
+            node.Parent.Left = newValue;
+        } else {
+            node.Parent.Right = newValue;
+        }
     }
 
-    private static void AddToFirst(short value, Node current, bool left = true) {
-        Node? currentOrNull = current;
-        while (currentOrNull is not null) {
-            if (left && current.Left is Literal leftLiteral) {
-                current.Left = leftLiteral with { Value = (short)(leftLiteral.Value + value) };
-                return;
-            }
-            
-            if (!left && current.Right is Literal rightLiteral) {
-                current.Right = rightLiteral with { Value = (short)(rightLiteral.Value + value) };
-                return;
+    private static void AddToFirst(short value, Node? current, bool left, Node previousNode) {
+        if (current is null) {
+            return;
+        }
+
+        var toCheckNode = left ? current.Left : current.Right;
+
+        if (toCheckNode is Literal literal) {
+            var newLiteral = literal with { Value = (short)(literal.Value + value) };
+            if (left) {
+                current.Left = newLiteral;
+            } else {
+                current.Right = newLiteral;
             }
 
-            currentOrNull = currentOrNull.Parent;
+            return;
+        }
+
+        if (toCheckNode is Pair pair && pair.ToString() != previousNode.ToString()) {
+            AddToFirst(value, pair, !left, previousNode);
+        } else {
+            AddToFirst(value, current.Parent, left, current);
         }
     }
 
@@ -146,23 +163,24 @@ internal sealed class Day18 : BaseDay {
             this.Right = Right;
             this.Level = Level;
         }
+
         public Node? Parent { get; set; }
-        public Node? Left { get; set; } // boo :c 
-        public Node? Right { get; set; } // boo :c 
+        public Node? Left { get; set; }
+        public Node? Right { get; set; }
         public int Level { get; init; }
+
+        public bool HasParent => Parent is not null; // purely for verify
+
         public void Deconstruct(out Node? Left, out Node? Right, out int Level) {
             Left = this.Left;
             Right = this.Right;
             Level = this.Level;
         }
-        
-        public bool HasParent => Parent is not null; // purely for verify
 
         public override string ToString() => $"[{Left},{Right}]";
     }
 
     internal sealed record Pair(Node? Left, Node? Right, int Level) : Node(Left, Right, Level) {
-
         public override string ToString() => base.ToString();
     }
 
