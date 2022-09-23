@@ -11,8 +11,12 @@ public sealed class Day18Tests {
 
     internal readonly Func<string, Day18.Node> Reader = Day18.Helper.Read;
     internal readonly Func<Day18.Node, Day18.Node, Day18.Node> Addition = Day18.Add;
+
+    internal readonly Func<string, string, Day18.Node> AddFromString = (s1, s2) =>
+        Day18.Add(Day18.Helper.Read(s1), Day18.Helper.Read(s2));
     internal readonly Func<string, Day18.Node> ReduceString = s => Day18.Reduce(Day18.Helper.Read(s));
     internal readonly Func< Day18.Node, Day18.Node> Reduce = Day18.Reduce;
+    internal readonly Func<string, Day18.Node> Addlist = s=> Day18.AddList(Day18.Helper.ReadLines(s));
 
     [Fact]
     public Task Reader_ShouldParseNode_WhenGivenSingle() {
@@ -143,6 +147,7 @@ public sealed class Day18Tests {
         var input = Reader("[[3,9],[[1,3],3]]");
         input.Left!.Right = new Day18.Literal(14, input.Left!.Right!.Level);
         input.Right!.Left!.Left = new Day18.Literal(18,  input.Right!.Left!.Left!.Level);
+        input = Day18.Helper.FixParents(input);
             
         //Act
         var result = Reduce(input);
@@ -156,6 +161,7 @@ public sealed class Day18Tests {
         //Arrange
         var input = Reader("[[3,9],[[1,3],3]]");
         input.Right!.Left!.Left = new Day18.Literal(18,  input.Right!.Left!.Left!.Level);
+        input = Day18.Helper.FixParents(input);
             
         //Act
         var result = Reduce(input);
@@ -169,6 +175,7 @@ public sealed class Day18Tests {
         //Arrange
         var input = Reader("[[3,9],[[1,3],3]]");
         input.Right!.Left!.Left = new Day18.Literal(17,  input.Right!.Left!.Left!.Level);
+        input = Day18.Helper.FixParents(input);
             
         //Act
         var result = Reduce(input);
@@ -182,6 +189,7 @@ public sealed class Day18Tests {
         //Arrange
         var input = Reader("[1,3]");
         input.Left = new Day18.Literal(12, input.Left!.Level);
+        input = Day18.Helper.FixParents(input);
 
         //Act
         var result = Reduce(input);
@@ -195,11 +203,122 @@ public sealed class Day18Tests {
         //Arrange
         var input = Reader("[1,3]");
         input.Left = new Day18.Literal(13, input.Left!.Level);
+        input = Day18.Helper.FixParents(input);
 
         //Act
         var result = Reduce(input);
 
         //Assert
         result.ToString().Should().Be("[[6,7],3]");
+    }
+
+    [Fact]
+    public void Addition_ShouldReduce_WhenItExplodesAfterAddition() {
+        //Arrange
+        var left = Reader("[[[[4,3],4],4],[7,[[8,4],9]]]");
+        var right = Reader("[1,1]");
+        var expected = "[[[[0,7],4],[[7,8],[6,0]]],[8,1]]";
+
+        //Act
+        var result = Addition(left, right);
+
+        //Assert
+        result.ToString().Should().Be(expected);
+    }
+
+    [Fact]
+    public void AddList_ShouldReturnCorrect_WhenNoReduce() {
+        //Arrange
+        var list = @"[1,1]
+[2,2]
+[3,3]
+[4,4]";
+        var expected = "[[[[1,1],[2,2]],[3,3]],[4,4]]";
+
+        //Act
+        var result = Addlist(list);
+
+        //Assert
+        result.ToString().Should().Be(expected);
+    }
+    
+    [Fact]
+    public void AddList_ShouldReturnCorrect_WhenReducing() {
+        //Arrange
+        var list = @"[1,1]
+[2,2]
+[3,3]
+[4,4]
+[5,5]
+[6,6]";
+        var expected = "[[[[5,0],[7,4]],[5,5]],[6,6]]";
+
+        //Act
+        var result = Addlist(list);
+
+        //Assert
+        result.ToString().Should().Be(expected);
+    }
+    
+    [Fact]
+    public void Testie() {
+        //Arrange
+        var input = "[[[0,[4,5]],[0,0]],[[[4,5],[2,6]],[9,5]]]";
+        var expected = "[[[0,[4,5]],[0,0]],[[[4,5],[2,6]],[9,5]]]";
+
+        //Act
+        var result = ReduceString(input);
+
+        //Assert
+        result.ToString().Should().Be(expected);
+    }
+
+    [Fact]
+    public void Reducing_ShouldBeCorrect_WithBigNumber() {
+        //Arrange
+        var input = "[[[[0,[4,5]],[0,0]],[[[4,5],[2,6]],[9,5]]],[7,[[[3,7],[4,3]],[[6,3],[8,8]]]]]";
+        var expected = "[[[[4,0],[5,4]],[[7,7],[6,0]]],[[8,[7,7]],[[7,9],[5,0]]]]";
+
+        //Act
+        var result = ReduceString(input);
+
+        //Assert
+        result.ToString().Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData("[[[0,[4,5]],[0,0]],[[[4,5],[2,6]],[9,5]]]", "[7,[[[3,7],[4,3]],[[6,3],[8,8]]]]", "[[[[4,0],[5,4]],[[7,7],[6,0]]],[[8,[7,7]],[[7,9],[5,0]]]]")]
+    [InlineData("[[[[4,0],[5,4]],[[7,7],[6,0]]],[[8,[7,7]],[[7,9],[5,0]]]]", "[[2,[[0,8],[3,4]]],[[[6,7],1],[7,[1,6]]]]", "[[[[6,7],[6,7]],[[7,7],[0,7]]],[[[8,7],[7,7]],[[8,8],[8,0]]]]")]
+    [InlineData("[[[[6,7],[6,7]],[[7,7],[0,7]]],[[[8,7],[7,7]],[[8,8],[8,0]]]]", "[[[[2,4],7],[6,[0,5]]],[[[6,8],[2,8]],[[2,1],[4,5]]]]", "[[[[7,0],[7,7]],[[7,7],[7,8]]],[[[7,7],[8,8]],[[7,7],[8,7]]]]")]
+    public void Add_ShouldBeCorrect_FromTwoComplex(string s1, string s2, string expected) {
+        //Arrange
+
+        //Act
+        var result = AddFromString(s1, s2);
+
+        //Assert
+        result.ToString().Should().Be(expected);
+    }
+    
+    [Fact]
+    public void AddList_ShouldReturnCorrect_WhenComplex() {
+        //Arrange
+        var list = @"[[[0,[4,5]],[0,0]],[[[4,5],[2,6]],[9,5]]]
+[7,[[[3,7],[4,3]],[[6,3],[8,8]]]]
+[[2,[[0,8],[3,4]]],[[[6,7],1],[7,[1,6]]]]
+[[[[2,4],7],[6,[0,5]]],[[[6,8],[2,8]],[[2,1],[4,5]]]]
+[7,[5,[[3,8],[1,4]]]]
+[[2,[2,2]],[8,[8,1]]]
+[2,9]
+[1,[[[9,3],9],[[9,0],[0,7]]]]
+[[[5,[7,4]],7],1]
+[[[[4,2],2],6],[8,7]]";
+        var expected = "[[[[8,7],[7,7]],[[8,6],[7,7]]],[[[0,7],[6,6]],[8,7]]]";
+
+        //Act
+        var result = Addlist(list);
+
+        //Assert
+        result.ToString().Should().Be(expected);
     }
 }

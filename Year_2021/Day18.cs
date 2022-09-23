@@ -10,6 +10,15 @@ internal sealed class Day18 : BaseDay {
         var input = File.ReadAllText(InputFilePath);
     }
 
+    public static Node AddList(Node[] list) {
+        Node result = list[0];
+        for (var index = 1; index < list.Length; index++) {
+            result = Add(result, list[index]);
+        }
+
+        return result;
+    }
+
     public static Node Add(Node left, Node right) {
         var result = new Pair(
             Change(left, node => node with { Level = node.Level + 1 }),
@@ -17,13 +26,7 @@ internal sealed class Day18 : BaseDay {
             0);
 
         // adding parents
-        if (result.Left is not null) {
-            result.Left.Parent = result;
-        }
-
-        if (result.Right is not null) {
-            result.Right.Parent = result;
-        }
+        Helper.FixParents(result);
 
         return Reduce(result);
     }
@@ -36,22 +39,48 @@ internal sealed class Day18 : BaseDay {
         return newNode with { Left = left, Right = right };
     }
 
-    public static Node Reduce(Node node) {
-        Explode(node, false);
-        var newNode =  Change(node, n => n is Literal { Value: > 9 } ? Split(n) : n);
-        newNode = Helper.FixParents(newNode);
-        var str = newNode.ToString();
-        Explode(newNode, false);
-        
-        if (str == newNode.ToString()) {
-            return newNode;
+    private static bool DoSplit(Node node, bool left) {
+        if (node is Literal { Value: > 9 }) {
+            var result = Split(node);
+            result.Parent = node.Parent;
+            if (left) {
+                result.Parent!.Left = result;
+            } else {
+                result.Parent!.Right = result;
+            }
+            return true;
         }
 
-        return Reduce(newNode);
+        var leftSplit = node.Left is not null && DoSplit(node.Left, true);
+        if (!leftSplit) {
+            return node.Right is not null && DoSplit(node.Right, false);
+        }
+
+        return leftSplit;
+    }
+    
+ 
+    
+    public static Node Reduce(Node node) {
+        Explode(node, false);
+        //Helper.FixParents(node);
+        if (!DoSplit(node, false)) {
+            return node;
+        }
+
+        Helper.FixParents(node);
+        //var newNode = Change(node, n => n is Literal { Value: > 9 } ? Split(n) : n);
+        //newNode = Helper.FixParents(newNode);
+        //var str = newNode.ToString();
+        //Explode(newNode, false);
+
+        
+
+        return Reduce(node);
     }
 
     private static Node Split(Node node) {
-        if (node is not Literal { Value: > 9 } l) {
+        if (node.Level > 3 || node is not Literal { Value: > 9 } l) {
             return node;
         }
 
@@ -81,14 +110,16 @@ internal sealed class Day18 : BaseDay {
             return;
         }
 
+        
+        
         // we´re deeper then 4. must be literal
         var leftLiteral = (Literal)node.Left!;
         var rightLiteral = (Literal)node.Right!;
 
         var newValue = new Literal(0, 3) { Parent = node.Parent!.Parent };
 
-        AddToFirst(leftLiteral.Value, node.Parent!, true, node);
-        AddToFirst(rightLiteral.Value, node.Parent!, false, node);
+        AddToFirst(leftLiteral.Value, node.Parent!, true, node, true);
+        AddToFirst(rightLiteral.Value, node.Parent!, false, node, true);
 
         if (isLeft) {
             node.Parent.Left = newValue;
@@ -97,16 +128,16 @@ internal sealed class Day18 : BaseDay {
         }
     }
 
-    private static void AddToFirst(short value, Node? current, bool left, Node previousNode) {
+    private static void AddToFirst(short value, Node? current, bool left, Node previousNode, bool bubbleUp) {
         if (current is null) {
             return;
         }
 
-        var toCheckNode = left ? current.Left : current.Right;
+        var toCheckNode = bubbleUp && left || !bubbleUp && !left ? current.Left : current.Right;
 
         if (toCheckNode is Literal literal) {
             var newLiteral = literal with { Value = (short)(literal.Value + value) };
-            if (left) {
+            if (bubbleUp && left || !bubbleUp && !left) {
                 current.Left = newLiteral;
             } else {
                 current.Right = newLiteral;
@@ -116,9 +147,9 @@ internal sealed class Day18 : BaseDay {
         }
 
         if (toCheckNode is Pair pair && pair.ToString() != previousNode.ToString()) {
-            AddToFirst(value, pair, !left, previousNode);
+            AddToFirst(value, pair, left, previousNode, false);
         } else {
-            AddToFirst(value, current.Parent, left, current);
+            AddToFirst(value, current.Parent, left, current, true);
         }
     }
 
@@ -135,6 +166,7 @@ internal sealed class Day18 : BaseDay {
     internal static class Helper {
         public static Node Read(string input) => FixParents(Read(input.AsSpan(), 0, out _));
 
+        public static Node[] ReadLines(string input) => input.Split(Environment.NewLine).Select(Read).ToArray();
 
         public static Node FixParents(Node current, Node? parent = null) {
             if (current.Left is not null) {
