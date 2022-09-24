@@ -1,11 +1,14 @@
 ﻿{
   Left: {
     Value: 1,
+    Id: Guid_1,
     HasParent: true
   },
   Right: {
     Value: 2,
+    Id: Guid_2,
     HasParent: true
   },
+  Id: Guid_3,
   HasParent: false
 }

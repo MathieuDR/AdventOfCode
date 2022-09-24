@@ -3,29 +3,36 @@
     Left: {
       Value: 1,
       Level: 1,
+      Id: Guid_1,
       HasParent: true
     },
     Right: {
       Value: 9,
       Level: 1,
+      Id: Guid_2,
       HasParent: true
     },
     Level: 1,
+    Id: Guid_3,
     HasParent: true
   },
   Right: {
     Left: {
       Value: 8,
       Level: 1,
+      Id: Guid_4,
       HasParent: true
     },
     Right: {
       Value: 5,
       Level: 1,
+      Id: Guid_5,
       HasParent: true
     },
     Level: 1,
+    Id: Guid_6,
     HasParent: true
   },
+  Id: Guid_7,
   HasParent: false
 }

@@ -84,13 +84,11 @@ public sealed class Day18Tests {
         var left = "[1,2]";
         var right = "[2,3]";
         var expected = "[[1,2],[2,3]]";
-        var expectedNode = Reader(expected);
-
         //Act
         var result = Addition(Reader(left), Reader(right));
 
         //Assert
-        result.Should().BeEquivalentTo(expectedNode, options => options.IgnoringCyclicReferences());
+        result.ToString().Should().Be(expected);
     }
     
     [Fact]
@@ -99,13 +97,12 @@ public sealed class Day18Tests {
         var left = "[1,2]";
         var right = "[[3,4],5]";
         var expected = "[[1,2],[[3,4],5]]";
-        var expectedNode = Reader(expected);
 
         //Act
         var result = Addition(Reader(left), Reader(right));
 
         //Assert
-        result.Should().BeEquivalentTo(expectedNode, options => options.IgnoringCyclicReferences());
+        result.ToString().Should().Be(expected);
     }
 
     [Theory]

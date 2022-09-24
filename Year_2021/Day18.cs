@@ -62,8 +62,10 @@ internal sealed class Day18 : BaseDay {
  
     
     public static Node Reduce(Node node) {
+        Console.WriteLine(node.ToString());
         Explode(node, false);
-        //Helper.FixParents(node);
+        Console.WriteLine(node.ToString());
+        Helper.FixParents(node);
         if (!DoSplit(node, false)) {
             return node;
         }
@@ -126,6 +128,7 @@ internal sealed class Day18 : BaseDay {
         } else {
             node.Parent.Right = newValue;
         }
+        Console.WriteLine(node.Parent.Parent.Parent.Parent.ToString());
     }
 
     private static void AddToFirst(short value, Node? current, bool left, Node previousNode, bool bubbleUp) {
@@ -146,7 +149,7 @@ internal sealed class Day18 : BaseDay {
             return;
         }
 
-        if (toCheckNode is Pair pair && pair.ToString() != previousNode.ToString()) {
+        if (toCheckNode is Pair pair && pair.Id != previousNode.Id) {
             AddToFirst(value, pair, left, previousNode, false);
         } else {
             AddToFirst(value, current.Parent, left, current, true);
@@ -225,6 +228,8 @@ internal sealed class Day18 : BaseDay {
         public Node? Left { get; set; }
         public Node? Right { get; set; }
         public int Level { get; init; }
+
+        public Guid Id { get; } = Guid.NewGuid();
 
         public bool HasParent => Parent is not null; // purely for verify
 
