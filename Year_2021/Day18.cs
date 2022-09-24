@@ -6,8 +6,10 @@ namespace AdventOfCode.Year_2021;
 ///     Day 18 from year 2021
 /// </summary>
 internal sealed class Day18 : BaseDay {
+    private readonly Node[] numbers;
     public Day18() {
         var input = File.ReadAllText(InputFilePath);
+        numbers = Helper.ReadLines(input);
     }
 
     public static Node AddList(Node[] list) {
@@ -58,13 +60,20 @@ internal sealed class Day18 : BaseDay {
 
         return leftSplit;
     }
-    
- 
-    
+
+    public static int Magnitude(Node node) {
+        if (node is Literal literal) {
+            return literal.Value;
+        }
+
+        var l = Magnitude(node.Left!) * 3;
+        var r = Magnitude(node.Right!) * 2;
+
+        return l + r;
+    }
+
     public static Node Reduce(Node node) {
-        Console.WriteLine(node.ToString());
         Explode(node, false);
-        Console.WriteLine(node.ToString());
         Helper.FixParents(node);
         if (!DoSplit(node, false)) {
             return node;
@@ -98,7 +107,6 @@ internal sealed class Day18 : BaseDay {
         return p;
     }
 
-    // we´re mutating this boys
     private static void Explode(Node node, bool isLeft) {
         if (node.Level < 4) {
             if (node.Left is not null) {
@@ -128,7 +136,6 @@ internal sealed class Day18 : BaseDay {
         } else {
             node.Parent.Right = newValue;
         }
-        Console.WriteLine(node.Parent.Parent.Parent.Parent.ToString());
     }
 
     private static void AddToFirst(short value, Node? current, bool left, Node previousNode, bool bubbleUp) {
@@ -157,12 +164,27 @@ internal sealed class Day18 : BaseDay {
     }
 
     public override ValueTask<string> Solve_1() {
-        var result = 0;
+        var resultingNode = AddList(numbers); 
+        var result = Magnitude(resultingNode);
         return new ValueTask<string>($"Result: `{result}`");
     }
 
     public override ValueTask<string> Solve_2() {
         var result = 0;
+
+        for (var i = 0; i < numbers.Length - 1; i++) {
+            var a = numbers[i];
+            for (var u = i+1; u < numbers.Length; u++) {
+                var b = numbers[u];
+
+                var temp = Magnitude(Add(a, b));
+                result = Math.Max(temp, result);
+                
+                temp = Magnitude(Add(b, a));
+                result = Math.Max(temp, result);
+            }
+        }
+
         return new ValueTask<string>($"Result: `{result}`");
     }
 
