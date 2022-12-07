@@ -11,7 +11,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AoCHelper" Version="2.0.0" />
+        <PackageReference Include="AoCHelper" Version="2.0.1" />
         <PackageReference Include="MathieuDR.Common" Version="1.1.0" />
         <PackageReference Include="QuikGraph" Version="2.5.0" />
     </ItemGroup>
